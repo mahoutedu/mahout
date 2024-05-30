@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReadingApp</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap">
+    <style>
+        body {
+            font-family: 'Lexend', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #fff0db;
+            position: relative; /* To enable positioning of the footer text */
+        }
+
+        .logo-container img {
+            width: 200px;
+            height: auto;
+        }
+
+        .button-container {
+            margin-top: 20px;
+        }
+
+        #startButton {
+            padding: 10px 20px;
+            font-size: 20px;
+            font-family: 'Lexend', sans-serif; /* Apply Lexend font to the button */
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #startButton:hover {
+            background-color: #0056b3;
+        }
+
+        .footer-text {
+            font-size: 10px;
+            position: absolute;
+            bottom: 20px; /* Adjust as needed */
+            text-align: center;
+            width: 100%;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <img src="logo1.png" alt="Logo">
+    </div>
+    <div class="button-container">
+        <button id="startButton">Start</button>
+    </div>
+    <div class="footer-text">
+        Built with love by a Dad for his daughter
+    </div>
+    <script>
+        const startButton = document.getElementById('startButton');
+        startButton.addEventListener('click', () => {
+            window.location.href = 'lessons.html';
+        });
+    </script>
+</body>
+</html>

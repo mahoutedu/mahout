@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReadingApp - Select Lesson</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend&display=swap" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #fff0db;
+            flex-direction: column;
+        }
+
+        #lessonDropdown {
+            padding: 10px;
+            font-size: 1.2em;
+            font-family: 'Lexend', sans-serif; /* Apply Lexend font to the select element */
+        }
+    </style>
+</head>
+<body>
+    <select id="lessonDropdown">
+        <option value="">Select Lesson</option>
+        <option value="lesson1">Lesson 1</option>
+        <!-- Add options up to Lesson 15 -->
+        <option value="lesson2">Lesson 2</option>
+        <option value="lesson3">Lesson 3</option>
+        <option value="lesson4">Lesson 4</option>
+        <option value="lesson5">Lesson 5</option>
+        <option value="lesson6">Lesson 6</option>
+        <option value="lesson7">Lesson 7</option>
+        <option value="lesson8">Lesson 8</option>
+        <option value="lesson9">Lesson 9</option>
+        <option value="lesson10">Lesson 10</option>
+    </select>
+
+    <script>
+        document.getElementById('lessonDropdown').addEventListener('change', function() {
+            if (this.value) {
+                window.location.href = this.value + '.html'; // Navigate to the selected lesson page
+            }
+        });
+    </script>
+</body>
+</html>

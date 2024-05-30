@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReadingApp - Lesson 6</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            font-family: 'Lexend', sans-serif; /* Apply Lexend font to the body */
+            background-color: #fff0db; /* Set background color */
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .word {
+            font-size: 12em;
+            font-weight: bold;
+            color: black;
+            user-select: none;
+            cursor: default;
+            display: inline-block;
+            justify-content: center;
+            transition: color 0.3s;
+            font-family: 'Lexend', sans-serif; /* Apply Lexend font to the word */
+            text-align: center;
+        }
+
+        #buttons-container {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        #resetButton, #nextButton, #customButton, #lessonsButton, #toggleCButton {
+            padding: 10px 18px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background-color 0.3s;
+            font-family: 'Lexend', sans-serif; /* Apply Lexend font to all buttons */
+        }
+
+        #resetButton, #nextButton, #customButton {
+            background-color: #007bff;
+        }
+
+        #resetButton:hover, #nextButton:hover, #customButton:hover {
+            background-color: #0056b3;
+        }
+
+        #lessonsButton {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #28a745;
+        }
+
+        #lessonsButton:hover {
+            background-color: #218838;
+        }
+
+        #customInputContainer {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        #customInput {
+            font-size: 12em;
+            font-weight: bold;
+            border: none;
+            outline: none;
+            background: none;
+            color: black;
+            text-align: center;
+            font-family: 'Lexend', sans-serif; /* Apply Lexend font to the custom input */
+        }
+
+        #tickButton {
+            margin-top: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        #tickButton img {
+            width: 40px;
+            height: 40px;
+        }
+
+        #toggleCButton {
+            position: absolute;
+            bottom: 20px;
+            right: 40px;
+            width: 50px; /* Set the width equal to the height of the "Lessons" button */
+            height: 40px; /* Set the height equal to the height of the "Lessons" button */
+            background-color: #bf6347;
+            color: #fff0db;
+            font-size: 20px; /* Increase font size for better centering */
+            text-align: center;
+            line-height: 20px; /* Center the "C" vertically */
+        }
+
+        #toggleCButton.greyed {
+            background-color: grey;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="word">
+            <span>Let</span>
+            <span>us</span>
+            <span>go</span>
+        </div>
+        <div id="customInputContainer">
+            <input type="text" id="customInput" maxlength="100">
+            <button id="tickButton"><img src="tickmark.png" alt="Tick"></button>
+        </div>
+        <button id="lessonsButton">Lessons</button>
+        <div id="buttons-container">
+            <button id="resetButton">Reset</button>
+            <button id="nextButton">Next</button>
+            <button id="customButton">Custom</button>
+        </div>
+        <button id="toggleCButton">C</button>
+    </div>
+    <script>
+        const wordElement = document.querySelector('.word');
+        const resetButton = document.getElementById('resetButton');
+        const nextButton = document.getElementById('nextButton');
+        const customButton = document.getElementById('customButton');
+        const customInputContainer = document.getElementById('customInputContainer');
+        const customInput = document.getElementById('customInput');
+        const tickButton = document.getElementById('tickButton');
+        const lessonsButton = document.getElementById('lessonsButton');
+        const toggleCButton = document.getElementById('toggleCButton');
+
+        const words = ['This', 'that', 'The', 'They', 'Then'];
+
+        let dragging = false;
+        let initialClickX = 0;
+        let initialClickY = 0; // Add initialClickY variable to track initial Y position
+        let initialPercentage = 0;
+        let highlightedLetter = null;
+        let colorChangeEnabled = true; // Add a flag to control color changing
+
+        const letterCombos = ['sh', 'th', 'ch', 'oul', 'oa', 'ea', 'ee', 'ou', 'igh']; // List of letter combinations
+
+        wordElement.addEventListener('mousedown', handleMouseDown);
+        document.body.addEventListener('mousemove', handleMouseMove);
+        document.body.addEventListener('mouseup', handleMouseUp);
+        resetButton.addEventListener('click', handleReset);
+        nextButton.addEventListener('click', handleNext);
+        customButton.addEventListener('click', handleCustom);
+        tickButton.addEventListener('click', handleTick);
+        lessonsButton.addEventListener('click', handleLessons);
+        toggleCButton.addEventListener('click', handleToggleC); // Add event listener for the toggle button
+
+        function handleMouseDown(event) {
+            if (event.buttons === 1) { // Only trigger on left mouse button click
+                dragging = true;
+                initialClickX = event.clientX;
+                initialClickY = event.clientY; // Store initial Y position
+                initialPercentage = getPercentage
+(initialClickX, wordElement);
+                handleMouseMove(event); // Update color on initial click
+            }
+        }
+
+        function handleMouseMove(event) {
+            if (dragging && colorChangeEnabled) { // Only change color if enabled
+                const x = event.clientX;
+                const y = event.clientY; // Get the Y position of the mouse
+                const percentage = initialPercentage + ((x - initialClickX) / window.innerWidth) * 100;
+                const letters = wordElement.querySelectorAll('span');
+                letters.forEach((letter, index) => {
+                    const rect = letter.getBoundingClientRect();
+                    const midX = (rect.left + rect.right) / 2;
+                    const midY = (rect.top + rect.bottom) / 2; // Calculate the vertical midpoint of the letter
+                    const diffX = Math.abs(midX - x);
+                    const diffY = Math.abs(midY - y); // Calculate the vertical distance from the mouse to the letter
+                    const shouldChangeColor = diffX < 50 && diffY < 120; // Adjust this value for sensitivity
+                    if (shouldChangeColor) {
+                        let comboFound = false;
+                        // Check for letter combinations in both directions
+                        letterCombos.forEach(combo => {
+                            if (!comboFound) {
+                                // Check forward
+                                if (index + combo.length - 1 < letters.length) {
+                                    let match = true;
+                                    for (let i = 0; i < combo.length; i++) {
+                                        if (letters[index + i].textContent.toLowerCase() !== combo[i]) {
+                                            match = false;
+                                            break;
+                                        }
+                                    }
+                                    if (match) {
+                                        // Change color of the entire combination
+                                        for (let i = 0; i < combo.length; i++) {
+                                            letters[index + i].style.color = '#bf6347';
+                                        }
+                                        comboFound = true;
+                                        highlightedLetter = letter; // Remember the highlighted letter
+                                    }
+                                }
+                                // Check backward
+                                if (!comboFound && index - combo.length + 1 >= 0) {
+                                    let match = true;
+                                    for (let i = 0; i < combo.length; i++) {
+                                        if (letters[index - i].textContent.toLowerCase() !== combo[combo.length - 1 - i]) {
+                                            match = false;
+                                            break;
+                                        }
+                                    }
+                                    if (match) {
+                                        // Change color of the entire combination
+                                        for (let i = 0; i < combo.length; i++) {
+                                            letters[index - i].style.color = '#bf6347';
+                                        }
+                                        comboFound = true;
+                                        highlightedLetter = letter; // Remember the highlighted letter
+                                    }
+                                }
+                            }
+                        });
+                        if (!comboFound) {
+                            letter.style.color = '#bf6347';
+                            highlightedLetter = letter; // Remember the highlighted letter
+                        }
+                    }
+                });
+            }
+        }
+
+        function handleMouseUp() {
+            dragging = false;
+            if (highlightedLetter) {
+                const letters = wordElement.querySelectorAll('span');
+                letters.forEach(letter => {
+                    letter.style.color = 'black'; // Reset color of all letters
+                });
+                highlightedLetter = null; // Clear highlighted letter
+                resetButton.click(); // Simulate click event on reset button
+            }
+        }
+
+        function handleReset() {
+            const letters = wordElement.querySelectorAll('span');
+            letters.forEach(letter => {
+                letter.style.color = 'black'; // Reset color of all letters
+            });
+        }
+
+        function handleNext() {
+            wordElement.innerHTML = ''; // Clear current word
+            const randomIndex = Math.floor(Math.random() * words.length); // Generate a random index
+            const randomWord = words[randomIndex]; // Get a random word from the list
+            wordElement.innerHTML = ''; // Clear current word
+            for (let char of randomWord) {
+                const span = document.createElement('span');
+                span.textContent = char;
+                span.style.fontFamily = 'Lexend, sans-serif'; // Apply Lexend font to each span
+                wordElement.appendChild(span);
+            }
+            customInputContainer.style.display = 'none'; // Hide custom input container
+            customInput.value = ''; // Clear custom input
+        }
+
+        function handleCustom() {
+            wordElement.innerHTML = ''; // Clear current word
+            customInputContainer.style.display = 'flex';
+            customInput.focus();
+        }
+
+        function handleTick() {
+            const customText = customInput.value.trim();
+            if (customText.length > 0) {
+                wordElement.innerHTML = '';
+                for (let char of customText) {
+                    const span = document.createElement('span');
+                    span.textContent = char;
+                    span.style.fontFamily = 'Lexend, sans-serif'; // Apply Lexend font to each span
+                    wordElement.appendChild(span);
+                }
+                customInputContainer.style.display = 'none';
+                customInput.value = '';
+            } else {
+                // Hide the custom input container if no input is given
+                customInputContainer.style.display = 'none';
+            }
+        }
+
+        function handleLessons() {
+            window.location.href = 'lessons.html';
+        }
+
+        function handleToggleC() {
+            colorChangeEnabled = !colorChangeEnabled;
+            toggleCButton.classList.toggle('greyed', !colorChangeEnabled); // Toggle greyed class based on state
+        }
+
+        function getPercentage(x, element) {
+            const rect = element.getBoundingClientRect();
+            return ((x - rect.left) / rect.width) * 100;
+        }
+    </script>
+</body>
+</html>
