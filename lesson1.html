@@ -181,7 +181,7 @@
         document.body.addEventListener('mousemove', handleMouseMove);
         document.body.addEventListener('mouseup', handleMouseUp);
         wordElement.addEventListener('touchstart', handleTouchStart);
-        document.body.addEventListener('touchmove', handleTouchMove);
+        document.body.addEventListener('touchmove', handleTouchMove, { passive: false });
         document.body.addEventListener('touchend', handleTouchEnd);
         goButton.addEventListener('click', handleGo);
         nextButton.addEventListener('click', handleNext);
@@ -226,6 +226,7 @@
                 const x = event.touches[0].clientX;
                 const y = event.touches[0].clientY;
                 updateLetterColors(x, y);
+                event.preventDefault();
             }
         }
 
