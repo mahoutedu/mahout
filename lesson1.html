@@ -19,9 +19,11 @@
             -ms-user-select: none; /* Disable text selection for Internet Explorer */
             user-select: none; /* Disable text selection */
             touch-action: none; /* Prevent default touch actions */
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+        }
+
+        .no-scroll {
+            height: 100%;
+            overflow: hidden;
         }
 
         .content {
@@ -30,7 +32,6 @@
             align-items: center;
             justify-content: center;
             height: 100%;
-            flex-grow: 1;
         }
 
         .word {
@@ -47,10 +48,11 @@
         }
 
         #buttons-container {
+            position: absolute;
+            bottom: 20px;
             display: flex;
             justify-content: center;
             width: 100%;
-            margin-bottom: 20px;
         }
 
         #resetButton, #nextButton, #customButton, #lessonsButton, #toggleCButton {
