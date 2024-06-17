@@ -135,9 +135,9 @@
 <body>
     <div class="content">
         <div class="word">
-            <span>5</span>
-            <span>Letter</span>
-            <span>words</span>
+            <span></span>
+            <span>o</span>
+            <span></span>
         </div>
         <div id="customInputContainer">
             <input type="text" id="customInput" maxlength="100">
@@ -162,7 +162,7 @@
         const lessonsButton = document.getElementById('lessonsButton');
         const toggleCButton = document.getElementById('toggleCButton');
 
-        const words = ['bacon', 'camel', 'cover', 'discover', 'Lobster', 'banana', 'metal', 'salad', 'zebra', 'robot', 'canon', 'lemon', 'Jolly', 'vivid', 'novel', 'comic', 'olive', 'solar'];
+        const words = ['on', 'bob', 'dog', 'dot', 'hop', 'got', 'hot', 'job', 'log', 'not', 'off', 'pop', 'pot', 'rod', 'top', 'toss'];
 
         let dragging = false;
         let initialClickX = 0;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReadingApp - Lesson 3</title>
+    <title>ReadingApp - Lesson 1</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap">
     <style>
         body {
@@ -120,6 +120,7 @@
             font-size: 20px;
             text-align: center;
             line-height: 20px;
+            display: none; /* Hide toggleCButton initially */
         }
 
         #toggleCButton.greyed {
@@ -134,9 +135,9 @@
 <body>
     <div class="content">
         <div class="word">
-            <span>Let</span>
-            <span>us</span>
-            <span>go</span>
+            <span></span>
+            <span>sh</span>
+            <span></span>
         </div>
         <div id="customInputContainer">
             <input type="text" id="customInput" maxlength="100">
@@ -169,6 +170,7 @@
         let initialPercentage = 0;
         let highlightedLetter = null;
         let colorChangeEnabled = true;
+        let currentWordIndex = 0;
 
         const letterCombos = ['sh', 'th', 'ch', 'oul', 'oa', 'ea', 'ee', 'ou', 'igh', 'wh'];
 
@@ -297,9 +299,8 @@
 
         function handleGo() {
             wordElement.innerHTML = '';
-            const randomIndex = Math.floor(Math.random() * words.length);
-            const randomWord = words[randomIndex];
-            for (let char of randomWord) {
+            const currentWord = words[currentWordIndex];
+            for (let char of currentWord) {
                 const span = document.createElement('span');
                 span.textContent = char;
                 span.style.fontFamily = 'Lexend, sans-serif';
@@ -308,13 +309,14 @@
             goButton.style.display = 'none';
             nextButton.style.display = 'inline-block';
             customButton.style.display = 'inline-block';
+            toggleCButton.style.display = 'inline-block'; // Show toggleCButton
         }
 
         function handleNext() {
             wordElement.innerHTML = '';
-            const randomIndex = Math.floor(Math.random() * words.length);
-            const randomWord = words[randomIndex];
-            for (let char of randomWord) {
+            currentWordIndex = (currentWordIndex + 1) % words.length; // Move to next word and loop around
+            const currentWord = words[currentWordIndex];
+            for (let char of currentWord) {
                 const span = document.createElement('span');
                 span.textContent = char;
                 span.style.fontFamily = 'Lexend, sans-serif';
@@ -345,6 +347,7 @@
             } else {
                 customInputContainer.style.display = 'none';
             }
+            toggleCButton.style.display = 'inline-block'; // Show toggleCButton
         }
 
         function handleLessons() {

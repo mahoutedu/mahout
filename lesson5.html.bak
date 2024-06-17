@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReadingApp - Lesson 6</title>
+    <title>ReadingApp - Lesson 1</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap">
     <style>
         body {
@@ -120,7 +120,6 @@
             font-size: 20px;
             text-align: center;
             line-height: 20px;
-            display: none; /* Hide toggleCButton initially */
         }
 
         #toggleCButton.greyed {
@@ -135,9 +134,9 @@
 <body>
     <div class="content">
         <div class="word">
-            <span>5</span>
-            <span>Letter</span>
-            <span>words</span>
+            <span>Let</span>
+            <span>us</span>
+            <span>go</span>
         </div>
         <div id="customInputContainer">
             <input type="text" id="customInput" maxlength="100">
@@ -162,7 +161,7 @@
         const lessonsButton = document.getElementById('lessonsButton');
         const toggleCButton = document.getElementById('toggleCButton');
 
-        const words = ['bacon', 'camel', 'cover', 'discover', 'Lobster', 'banana', 'metal', 'salad', 'zebra', 'robot', 'canon', 'lemon', 'Jolly', 'vivid', 'novel', 'comic', 'olive', 'solar'];
+        const words = ['bug', 'bun', 'but', 'bus', 'cup', 'cub', 'cut', 'cuff', 'duck', 'dug', 'fun', 'fuss', 'gum', 'gun', 'hug', 'hum', 'jut', 'jug', 'mud', 'muff', 'nut', 'pup', 'rub', 'rug', 'sun', 'sun', 'tub', 'up', 'us'];
 
         let dragging = false;
         let initialClickX = 0;
@@ -170,9 +169,8 @@
         let initialPercentage = 0;
         let highlightedLetter = null;
         let colorChangeEnabled = true;
-        let currentWordIndex = 0;
 
-        const letterCombos = ['sh', 'th', 'ch', 'oul', 'oa', 'ea', 'ee', 'ou', 'igh', 'wh'];
+        const letterCombos = ['sh', 'th', 'ch', 'oul', 'oa', 'ea', 'ee', 'ou', 'igh'];
 
         wordElement.addEventListener('mousedown', handleMouseDown);
         document.body.addEventListener('mousemove', handleMouseMove);
@@ -299,8 +297,9 @@
 
         function handleGo() {
             wordElement.innerHTML = '';
-            const currentWord = words[currentWordIndex];
-            for (let char of currentWord) {
+            const randomIndex = Math.floor(Math.random() * words.length);
+            const randomWord = words[randomIndex];
+            for (let char of randomWord) {
                 const span = document.createElement('span');
                 span.textContent = char;
                 span.style.fontFamily = 'Lexend, sans-serif';
@@ -309,14 +308,13 @@
             goButton.style.display = 'none';
             nextButton.style.display = 'inline-block';
             customButton.style.display = 'inline-block';
-            toggleCButton.style.display = 'inline-block'; // Show toggleCButton
         }
 
         function handleNext() {
             wordElement.innerHTML = '';
-            currentWordIndex = (currentWordIndex + 1) % words.length; // Move to next word and loop around
-            const currentWord = words[currentWordIndex];
-            for (let char of currentWord) {
+            const randomIndex = Math.floor(Math.random() * words.length);
+            const randomWord = words[randomIndex];
+            for (let char of randomWord) {
                 const span = document.createElement('span');
                 span.textContent = char;
                 span.style.fontFamily = 'Lexend, sans-serif';
@@ -347,7 +345,6 @@
             } else {
                 customInputContainer.style.display = 'none';
             }
-            toggleCButton.style.display = 'inline-block'; // Show toggleCButton
         }
 
         function handleLessons() {
