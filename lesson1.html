@@ -2,23 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReadingApp - Lesson 1</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap">
     <style>
-        html, body {
+        body {
             margin: 0;
             padding: 0;
-            height: 100%;
-            width: 100%;
+            height: 100vh;
             overflow: hidden;
-            position: fixed;
+            position: relative;
             font-family: 'Lexend', sans-serif;
             background-color: #fff0db;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+            -webkit-user-select: none; /* Disable text selection for iOS */
+            -moz-user-select: none; /* Disable text selection for Firefox */
+            -ms-user-select: none; /* Disable text selection for Internet Explorer */
+            user-select: none; /* Disable text selection */
         }
 
         .content {
@@ -27,10 +26,6 @@
             align-items: center;
             justify-content: center;
             height: 100%;
-            width: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
         }
 
         .word {
@@ -125,7 +120,7 @@
             font-size: 20px;
             text-align: center;
             line-height: 20px;
-            display: none;
+            display: none; /* Hide toggleCButton initially */
         }
 
         #toggleCButton.greyed {
@@ -133,7 +128,7 @@
         }
 
         #resetButton {
-            display: none;
+            display: none; /* Hide reset button */
         }
     </style>
 </head>
@@ -314,12 +309,12 @@
             goButton.style.display = 'none';
             nextButton.style.display = 'inline-block';
             customButton.style.display = 'inline-block';
-            toggleCButton.style.display = 'inline-block';
+            toggleCButton.style.display = 'inline-block'; // Show toggleCButton
         }
 
         function handleNext() {
             wordElement.innerHTML = '';
-            currentWordIndex = (currentWordIndex + 1) % words.length;
+            currentWordIndex = (currentWordIndex + 1) % words.length; // Move to next word and loop around
             const currentWord = words[currentWordIndex];
             for (let char of currentWord) {
                 const span = document.createElement('span');
@@ -349,25 +344,10 @@
                 }
                 customInputContainer.style.display = 'none';
                 customInput.value = '';
-                adjustFontSize();
             } else {
                 customInputContainer.style.display = 'none';
             }
-            toggleCButton.style.display = 'inline-block';
-        }
-
-        function adjustFontSize() {
-            const containerWidth = wordElement.offsetWidth;
-            const containerHeight = wordElement.offsetHeight;
-            let fontSize = 12; // Starting font size in em
-
-            wordElement.style.fontSize = `${fontSize}em`;
-            
-            while (wordElement.scrollWidth > containerWidth || wordElement.scrollHeight > containerHeight) {
-                fontSize -= 0.1;
-                wordElement.style.fontSize = `${fontSize}em`;
-                if (fontSize <= 1) break; // Minimum font size
-            }
+            toggleCButton.style.display = 'inline-block'; // Show toggleCButton
         }
 
         function handleLessons() {
