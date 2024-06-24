@@ -34,7 +34,7 @@
         }
 
         .word {
-            font-size: 20vw;
+            font-size: 12em;
             font-weight: bold;
             color: black;
             user-select: none;
@@ -92,7 +92,7 @@
         }
 
         #customInput {
-            font-size: 20vw;
+            font-size: 12em;
             font-weight: bold;
             border: none;
             outline: none;
@@ -349,10 +349,25 @@
                 }
                 customInputContainer.style.display = 'none';
                 customInput.value = '';
+                adjustFontSize();
             } else {
                 customInputContainer.style.display = 'none';
             }
             toggleCButton.style.display = 'inline-block';
+        }
+
+        function adjustFontSize() {
+            const containerWidth = wordElement.offsetWidth;
+            const containerHeight = wordElement.offsetHeight;
+            let fontSize = 12; // Starting font size in em
+
+            wordElement.style.fontSize = `${fontSize}em`;
+            
+            while (wordElement.scrollWidth > containerWidth || wordElement.scrollHeight > containerHeight) {
+                fontSize -= 0.1;
+                wordElement.style.fontSize = `${fontSize}em`;
+                if (fontSize <= 1) break; // Minimum font size
+            }
         }
 
         function handleLessons() {
