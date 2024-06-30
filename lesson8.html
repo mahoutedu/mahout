@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ReadingApp - Lesson 8</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap">
     <style>
-        body {
+        html, body {
             margin: 0;
             padding: 0;
-            height: 100vh;
+            height: 100%;
+            width: 100%;
             overflow: hidden;
-            position: relative;
+            position: fixed;
             font-family: 'Lexend', sans-serif;
             background-color: #fff0db;
-            -webkit-user-select: none; /* Disable text selection for iOS */
-            -moz-user-select: none; /* Disable text selection for Firefox */
-            -ms-user-select: none; /* Disable text selection for Internet Explorer */
-            user-select: none; /* Disable text selection */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         .content {
@@ -26,6 +27,10 @@
             align-items: center;
             justify-content: center;
             height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
 
         .word {
@@ -49,7 +54,7 @@
             width: 100%;
         }
 
-        #resetButton, #nextButton, #customButton, #lessonsButton, #toggleCButton {
+        #resetButton, #nextButton, #customButton, #lessonsButton, #toggleCButton, #toggleFCButton {
             padding: 10px 18px;
             color: white;
             border: none;
@@ -95,6 +100,7 @@
             color: black;
             text-align: center;
             font-family: 'Lexend', sans-serif;
+            max-width: 80vw;
         }
 
         #tickButton {
@@ -109,7 +115,7 @@
             height: 40px;
         }
 
-        #toggleCButton {
+        #toggleCButton, #toggleFCButton {
             position: absolute;
             bottom: 20px;
             right: 40px;
@@ -120,15 +126,19 @@
             font-size: 20px;
             text-align: center;
             line-height: 20px;
-            display: none; /* Hide toggleCButton initially */
+            display: none;
         }
 
-        #toggleCButton.greyed {
+        #toggleCButton.greyed, #toggleFCButton.greyed {
             background-color: grey;
         }
 
         #resetButton {
-            display: none; /* Hide reset button */
+            display: none;
+        }
+
+        #toggleFCButton {
+            right: 100px;
         }
     </style>
 </head>
@@ -150,6 +160,7 @@
             <button id="customButton" style="display: none;">Custom</button>
         </div>
         <button id="toggleCButton">C</button>
+        <button id="toggleFCButton">fC</button>
     </div>
     <script>
         const wordElement = document.querySelector('.word');
@@ -161,18 +172,28 @@
         const tickButton = document.getElementById('tickButton');
         const lessonsButton = document.getElementById('lessonsButton');
         const toggleCButton = document.getElementById('toggleCButton');
+        const toggleFCButton = document.getElementById('toggleFCButton');
 
         const words = ['why', 'who', 'which', 'what', 'where', 'how', 'when'];
 
         let dragging = false;
-        let initialClickX = 0;
-        let initialClickY = 0;
-        let initialPercentage = 0;
         let highlightedLetter = null;
         let colorChangeEnabled = true;
+        let colorHighlightEnabled = true;
         let currentWordIndex = 0;
 
-        const letterCombos = ['sh', 'th', 'ch', 'oul', 'oa', 'ea', 'ee', 'ou', 'igh', 'wh'];
+        const letterCombos = [
+            { combo: 'sh', color: 'red' },
+            { combo: 'th', color: 'green' },
+            { combo: 'ch', color: 'blue' },
+            { combo: 'oul', color: 'purple' },
+            { combo: 'oa', color: 'orange' },
+            { combo: 'ea', color: 'brown' },
+            { combo: 'ee', color: 'pink' },
+            { combo: 'ou', color: 'cyan' },
+            { combo: 'igh', color: 'magenta' },
+            { combo: 'wh', color: 'yellow' }
+        ];
 
         wordElement.addEventListener('mousedown', handleMouseDown);
         document.body.addEventListener('mousemove', handleMouseMove);
@@ -186,13 +207,11 @@
         tickButton.addEventListener('click', handleTick);
         lessonsButton.addEventListener('click', handleLessons);
         toggleCButton.addEventListener('click', handleToggleC);
+        toggleFCButton.addEventListener('click', handleToggleFC);
 
         function handleMouseDown(event) {
             if (event.buttons === 1) {
                 dragging = true;
-                initialClickX = event.clientX;
-                initialClickY = event.clientY;
-                initialPercentage = getPercentage(initialClickX, wordElement);
                 handleMouseMove(event);
             }
         }
@@ -212,9 +231,6 @@
 
         function handleTouchStart(event) {
             dragging = true;
-            initialClickX = event.touches[0].clientX;
-            initialClickY = event.touches[0].clientY;
-            initialPercentage = getPercentage(initialClickX, wordElement);
             handleTouchMove(event);
         }
 
@@ -232,96 +248,58 @@
         }
 
         function updateLetterColors(x, y) {
-            const percentage = initialPercentage + ((x - initialClickX) / window.innerWidth) * 100;
-            const letters = wordElement.querySelectorAll('span');
-            letters.forEach((letter, index) => {
-                const rect = letter.getBoundingClientRect();
-                const midX = (rect.left + rect.right) / 2;
-                const midY = (rect.top + rect.bottom) / 2;
-                const diffX = Math.abs(midX - x);
-                const diffY = Math.abs(midY - y);
-                const shouldChangeColor = diffX < 50 && diffY < 120;
-                if (shouldChangeColor) {
-                    let comboFound = false;
-                    letterCombos.forEach(combo => {
-                        if (!comboFound) {
-                            if (index + combo.length - 1 < letters.length) {
-                                let match = true;
-                                for (let i = 0; i < combo.length; i++) {
-                                    if (letters[index + i].textContent.toLowerCase() !== combo[i]) {
-                                        match = false;
-                                        break;
-                                    }
-                                }
-                                if (match) {
-                                    for (let i = 0; i < combo.length; i++) {
-                                        letters[index + i].style.color = '#bf6347';
-                                    }
-                                    comboFound = true;
-                                    highlightedLetter = letter;
-                                }
-                            }
-                            if (!comboFound && index - combo.length + 1 >= 0) {
-                                let match = true;
-                                for (let i = 0; i < combo.length; i++) {
-                                    if (letters[index - i].textContent.toLowerCase() !== combo[combo.length - 1 - i]) {
-                                        match = false;
-                                        break;
-                                    }
-                                }
-                                if (match) {
-                                    for (let i = 0; i < combo.length; i++) {
-                                        letters[index - i].style.color = '#bf6347';
-                                    }
-                                    comboFound = true;
-                                    highlightedLetter = letter;
-                                }
-                            }
+    if (!colorChangeEnabled) return;
+
+    const letters = Array.from(wordElement.querySelectorAll('span'));
+    letters.forEach((letter, index) => {
+        const rect = letter.getBoundingClientRect();
+        const midX = (rect.left + rect.right) / 2;
+        const midY = (rect.top + rect.bottom) / 2;
+        const diffX = Math.abs(midX - x);
+        const diffY = Math.abs(midY - y);
+        const shouldChangeColor = diffX < 50 && diffY < 120;
+
+        if (shouldChangeColor) {
+            for (const { combo } of letterCombos) {
+                for (let startIndex = Math.max(0, index - combo.length + 1); startIndex <= index; startIndex++) {
+                    if (startIndex + combo.length <= letters.length) {
+                        const comboSpans = letters.slice(startIndex, startIndex + combo.length);
+                        const comboText = comboSpans.map(span => span.textContent.toLowerCase()).join('');
+                        
+                        if (comboText === combo.toLowerCase() && comboSpans.every((span, i, array) => 
+                            i === 0 || span.previousSibling === array[i - 1])) {
+                            comboSpans.forEach(span => span.style.color = '#bf6347');
+                            return;
                         }
-                    });
-                    if (!comboFound) {
-                        letter.style.color = '#bf6347';
-                        highlightedLetter = letter;
                     }
                 }
-            });
+            }
+            letter.style.color = '#bf6347';
         }
+    });
+}
 
         function resetLetterColors() {
-            if (highlightedLetter) {
-                const letters = wordElement.querySelectorAll('span');
-                letters.forEach(letter => {
-                    letter.style.color = 'black';
-                });
-                highlightedLetter = null;
+            if (colorHighlightEnabled) {
+                highlightLetterCombos();
+            } else {
+                const letters = Array.from(wordElement.querySelectorAll('span'));
+                letters.forEach(letter => letter.style.color = 'black');
             }
         }
 
         function handleGo() {
-            wordElement.innerHTML = '';
-            const currentWord = words[currentWordIndex];
-            for (let char of currentWord) {
-                const span = document.createElement('span');
-                span.textContent = char;
-                span.style.fontFamily = 'Lexend, sans-serif';
-                wordElement.appendChild(span);
-            }
+            displayWord(words[currentWordIndex]);
             goButton.style.display = 'none';
             nextButton.style.display = 'inline-block';
             customButton.style.display = 'inline-block';
-            toggleCButton.style.display = 'inline-block'; // Show toggleCButton
+            toggleCButton.style.display = 'inline-block';
+            toggleFCButton.style.display = 'inline-block';
         }
 
         function handleNext() {
-            wordElement.innerHTML = '';
-            currentWordIndex = (currentWordIndex + 1) % words.length; // Move to next word and loop around
-            const currentWord = words[currentWordIndex];
-            for (let char of currentWord) {
-                const span = document.createElement('span');
-                span.textContent = char;
-                span.style.fontFamily = 'Lexend, sans-serif';
-                wordElement.appendChild(span);
-            }
+            currentWordIndex = (currentWordIndex + 1) % words.length;
+            displayWord(words[currentWordIndex]);
             customInputContainer.style.display = 'none';
             customInput.value = '';
         }
@@ -335,19 +313,14 @@
         function handleTick() {
             const customText = customInput.value.trim();
             if (customText.length > 0) {
-                wordElement.innerHTML = '';
-                for (let char of customText) {
-                    const span = document.createElement('span');
-                    span.textContent = char;
-                    span.style.fontFamily = 'Lexend, sans-serif';
-                    wordElement.appendChild(span);
-                }
+                displayWord(customText);
                 customInputContainer.style.display = 'none';
                 customInput.value = '';
             } else {
                 customInputContainer.style.display = 'none';
             }
-            toggleCButton.style.display = 'inline-block'; // Show toggleCButton
+            toggleCButton.style.display = 'inline-block';
+            toggleFCButton.style.display = 'inline-block';
         }
 
         function handleLessons() {
@@ -359,10 +332,50 @@
             toggleCButton.classList.toggle('greyed', !colorChangeEnabled);
         }
 
+        function handleToggleFC() {
+            colorHighlightEnabled = !colorHighlightEnabled;
+            toggleFCButton.classList.toggle('greyed', !colorHighlightEnabled);
+            displayWord(wordElement.textContent);  // Remove the replace() method
+        }
+
         function getPercentage(x, element) {
             const rect = element.getBoundingClientRect();
             return ((x - rect.left) / rect.width) * 100;
         }
+
+        function displayWord(word) {
+            wordElement.innerHTML = '';
+            for (let char of word) {
+                if (char === ' ') {
+                    wordElement.appendChild(document.createTextNode(' '));
+                } else {
+                    const span = document.createElement('span');
+                    span.textContent = char;
+                    span.style.fontFamily = 'Lexend, sans-serif';
+                    wordElement.appendChild(span);
+                }
+            }
+            resetLetterColors();
+        }
+
+        function highlightLetterCombos() {
+    const letters = Array.from(wordElement.querySelectorAll('span'));
+    letters.forEach(letter => letter.style.color = 'black');
+    
+    for (let i = 0; i < letters.length; i++) {
+        for (const { combo, color } of letterCombos) {
+            if (i + combo.length <= letters.length) {
+                const comboSpans = letters.slice(i, i + combo.length);
+                const comboText = comboSpans.map(span => span.textContent.toLowerCase()).join('');
+                
+                if (comboText === combo.toLowerCase() && comboSpans.every((span, index, array) => 
+                    index === 0 || span.previousSibling === array[index - 1])) {
+                    comboSpans.forEach(span => span.style.color = color);
+                }
+            }
+        }
+    }
+}
     </script>
 </body>
 </html>
