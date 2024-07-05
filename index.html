@@ -51,6 +51,24 @@
             width: 100%;
             color: #333;
         }
+
+        #guideButton {
+            padding: 8px 16px;
+            font-size: 18px;
+            font-family: 'Lexend', sans-serif; /* Apply Lexend font to the button */
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            position: absolute;
+            bottom: 60px; /* Adjust as needed to place above the footer text */
+        }
+
+        #guideButton:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
@@ -60,6 +78,7 @@
     <div class="button-container">
         <button id="startButton">Start</button>
     </div>
+    <button id="guideButton">Guide</button>
     <div class="footer-text">
         Contact mahout.edu@gmail.com for any questions
     </div>
@@ -67,6 +86,11 @@
         const startButton = document.getElementById('startButton');
         startButton.addEventListener('click', () => {
             window.location.href = 'lessons.html';
+        });
+
+        const guideButton = document.getElementById('guideButton');
+        guideButton.addEventListener('click', () => {
+            window.location.href = 'guide.html';
         });
     </script>
 </body>
