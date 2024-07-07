@@ -1,0 +1,135 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    position: fixed;
+    font-family: 'Lexend', sans-serif;
+    background-color: #fff0db;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.word {
+    font-size: 12em;
+    font-weight: bold;
+    color: black;
+    user-select: none;
+    cursor: default;
+    display: inline-block;
+    justify-content: center;
+    transition: color 0.3s;
+    font-family: 'Lexend', sans-serif;
+    text-align: center;
+}
+
+#buttons-container {
+    position: absolute;
+    bottom: 20px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+#resetButton, #nextButton, #customButton, #lessonsButton, #toggleCButton, #toggleFCButton {
+    padding: 10px 18px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0 10px;
+    transition: background-color 0.3s;
+    font-family: 'Lexend', sans-serif;
+}
+
+#resetButton, #nextButton, #customButton {
+    background-color: #007bff;
+}
+
+#resetButton:hover, #nextButton:hover, #customButton:hover {
+    background-color: #0056b3;
+}
+
+#lessonsButton {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: #28a745;
+}
+
+#lessonsButton:hover {
+    background-color: #218838;
+}
+
+#customInputContainer {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+#customInput {
+    font-size: 12em;
+    font-weight: bold;
+    border: none;
+    outline: none;
+    background: none;
+    color: black;
+    text-align: center;
+    font-family: 'Lexend', sans-serif;
+    max-width: 80vw;
+}
+
+#tickButton {
+    margin-top: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+#tickButton img {
+    width: 40px;
+    height: 40px;
+}
+
+#toggleCButton, #toggleFCButton {
+    position: absolute;
+    bottom: 20px;
+    right: 40px;
+    width: 50px;
+    height: 40px;
+    background-color: #bf6347;
+    color: #fff0db;
+    font-size: 20px;
+    text-align: center;
+    line-height: 20px;
+    display: none;
+}
+
+#toggleCButton.greyed, #toggleFCButton.greyed {
+    background-color: grey;
+}
+
+#resetButton {
+    display: none;
+}
+
+#toggleFCButton {
+    right: 100px;
+    background-color: purple;
+}
