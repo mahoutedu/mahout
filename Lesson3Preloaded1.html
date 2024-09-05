@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ReadingApp - Lesson 3</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            position: fixed;
+            font-family: 'Lexend', sans-serif;
+            background-color: #fff0db;
+            background-image: url('background.svg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .word {
+            font-size: 12em;
+            font-weight: bold;
+            color: black;
+            user-select: none;
+            cursor: default;
+            display: inline-block;
+            justify-content: center;
+            transition: color 0.3s;
+            font-family: 'Lexend', sans-serif;
+            text-align: center;
+        }
+
+        #buttons-container {
+            position: absolute;
+            top: 20px;
+            display: flex;
+            justify-content: center;
+            width: 30%;
+        }
+
+        #resetButton, #nextButton, #previousButton, #customButton, #lessonsButton, #toggleCButton, #toggleFCButton {
+            padding: 10px 18px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background-color 0.3s;
+            font-family: 'Lexend', sans-serif;
+        }
+
+        #resetButton, #nextButton, #previousButton, #customButton {
+            background-color: #007bff;
+        }
+
+        #resetButton:hover, #nextButton:hover, #previousButton:hover, #customButton:hover {
+            background-color: #0056b3;
+        }
+
+        #lessonsButton {
+            position: absolute;
+            top: 22px;
+            right: 20px;
+            background-color: #28a745;
+        }
+
+        #lessonsButton:hover {
+            background-color: #218838;
+        }
+
+        #customInputContainer {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        #customInput {
+            font-size: 12em;
+            font-weight: bold;
+            border: none;
+            outline: none;
+            background: none;
+            color: black;
+            text-align: center;
+            font-family: 'Lexend', sans-serif;
+            max-width: 80vw;
+            margin-top: 10px;
+        }
+
+        #tickButton {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        #tickButton img {
+            width: 40px;
+            height: 40px;
+        }
+
+        #toggleCButton, #toggleFCButton {
+            position: absolute;
+            top: 20px;
+            right: 200px;
+            width: 50px;
+            height: 40px;
+            background-color: #bf6347;
+            color: #fff0db;
+            font-size: 20px;
+            text-align: center;
+            line-height: 20px;
+            display: none;
+        }
+
+        #toggleCButton.greyed, #toggleFCButton.greyed {
+            background-color: grey;
+        }
+
+        #resetButton {
+            display: none;
+        }
+
+        #toggleFCButton {
+            right: 130px;
+            background-color: purple;
+        }
+
+        .mode-circles {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: none;
+            flex-direction: column;
+        }
+
+        .mode-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            cursor: pointer;
+            border: 2px solid #000;
+            background-color: #808080;
+        }
+
+        .mode-circle.active {
+            background-color: #000000;
+        }
+
+        .mode-circle.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #imageContainer {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: left 1s linear;
+            display: none;
+        }
+
+        #movingImage, #staticImage1 {
+            width: 350px;
+            height: 350px;
+            object-fit: contain;
+        }
+        
+        #staticImage2 {
+            width: 500px;
+            height: 500px;
+        }
+
+        #staticImage2Container {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        #moveGifButton {
+            position: absolute;
+            top: 20px;
+            left: 250px;
+            width: 3mm;
+            height: 3mm;
+            background-color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+        }
+
+        #loadingIndicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            z-index: 1000;
+            text-align: center;
+        }
+
+        #progressBar {
+            width: 200px;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        #progressFill {
+            width: 0%;
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.3s ease-in-out;
+        }
+
+        #progressPercentage {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="mode-circles">
+            <div id="repeatMode" class="mode-circle" title="Repeat Mode"></div>
+            <div id="testMode" class="mode-circle" title="Test Mode"></div>
+        </div>
+        <div class="word">
+            <span></span>
+            <span>Lesson 3</span>
+            <span></span>
+        </div>
+        <div id="customInputContainer">
+            <button id="tickButton"><img src="tickmark.png" alt="Tick"></button>
+            <input type="text" id="customInput" maxlength="100">
+        </div>
+        <button id="lessonsButton">Lessons</button>
+        <button id="moveGifButton"></button>
+        <div id="imageContainer">
+            <img id="movingImage" src="Panda_T.gif" alt="Moving GIF" style="display: none;">
+            <img id="staticImage1" src="Panda_Static.png" alt="Static Image 1">
+        </div>
+        <div id="staticImage2Container">
+            <img id="staticImage2" src="Panda_Static2.png" alt="Static Image 2">
+        </div>
+        <div id="buttons-container">
+            <button id="goButton">Go</button>
+            <button id="previousButton" style="display: none;">Previous</button>
+            <button id="nextButton" style="display: none;">Next</button>
+            <button id="customButton" style="display: none;">Custom</button>
+        </div>
+        <button id="toggleCButton">C</button>
+        <button id="toggleFCButton">D</button>
+    </div>
+    <div id="loadingIndicator" style="display: none;">
+        <div>Loading...</div>
+        <div id="progressBar">
+            <div id="progressFill"></div>
+        </div>
+        <div id="progressPercentage">0%</div>
+    </div>
+    <script>
+        const wordElement = document.querySelector('.word');
+        const goButton = document.getElementById('goButton');
+        const nextButton = document.getElementById('nextButton');
+        const previousButton = document.getElementById('previousButton');
+        const customButton = document.getElementById('customButton');
+        const customInputContainer = document.getElementById('customInputContainer');
+        const customInput = document.getElementById('customInput');
+        const tickButton = document.getElementById('tickButton');
+        const lessonsButton = document.getElementById('lessonsButton');
+        const toggleCButton = document.getElementById('toggleCButton');
+        const toggleFCButton = document.getElementById('toggleFCButton');
+        const repeatModeCircle = document.getElementById('repeatMode');
+        const testModeCircle = document.getElementById('testMode');
+        const modeCirclesContainer = document.querySelector('.mode-circles');
+        const imageContainer = document.getElementById('imageContainer');
+        const movingImage = document.getElementById('movingImage');
+        const staticImage1 = document.getElementById('staticImage1');
+        const staticImage2Container = document.getElementById('staticImage2Container');
+        const moveGifButton = document.getElementById('moveGifButton');
+
+        const GIF_SPEED_CM_PER_SECOND = 3.5;
+        const PIXELS_PER_CM = 37.7952755906;
+        const GIF_SPEED_PIXELS_PER_SECOND = GIF_SPEED_CM_PER_SECOND * PIXELS_PER_CM;
+        
+        const STANDARD_DELAY = 2000;
+        const SPECIAL_LETTER_DELAY = 200;
+        const SPECIAL_LETTERS = ['c', 't', 'k', 'g', 'p', 'b', 'd', 'q'];
+
+        const wordsAndAudio2 = {
+            'fan': 'Aa.mp3',
+            'ham': 'ham.mp3',
+            'man': 'man.mp3',
+            'non': 'non.mp3',
+            'Sam': 'sam.mp3',
+            'sun': 'fat.mp3',
+            'fox': 'rat.mp3',
+            'non': 'sa.mp3',
+            'fun': 'em.mp3',
+            'run': 'mo.mp3',
+            'van': 'van.mp3',
+            'elf': 'fan.mp3',
+            'wax': 'dog.mp3',
+            'zen': 'zen.mp3',
+            'ram': 'ram.mp3',
+            'van': 'Aa.mp3',
+            'far': 'far.mp3',
+            'hex': 'hex.mp3',
+            'hen': 'hen.mp3',
+            'wow': 'Aa.mp3',
+            'arm': 'Oo.mp3',
+            'max': 'man.mp3',
+            'now': 'hat.mp3',
+            'vow': 'ho.mp3',
+            'fix': 'fix.mp3',
+            'fur': 'fur.mp3',
+            'nor': 'nor.mp3'
+        };
+        
+        const imageSets = [
+            {
+                movingImage: "Panda_T.gif",
+                staticImage1: "Panda_Static1.png",
+                staticImage2: "Panda_Static1.png",
+                movementSound: "walking.mp3"
+            },
+            {
+                movingImage: "Ali_T.gif",
+                staticImage1: "Aligator_Static1.png",
+                staticImage2: "Aligator_Static1.png",
+                movementSound: "walking.mp3"
+            },
+            {
+                movingImage: "Tiger_T.gif",
+                staticImage1: "Tiger_Static1.png",
+                staticImage2: "Tiger_Static1.png",
+                movementSound: "walking.mp3"
+            },
+            {
+                movingImage: "Lion_T.gif",
+                staticImage1: "Lion_Static1.png",
+                staticImage2: "Lion_Static1.png",
+                movementSound: "walking.mp3"
+            },
+            {
+                movingImage: "Gorilla_T.gif",
+                staticImage1: "Gorilla_Static1.png",
+                staticImage2: "Gorilla_Static1.png",
+                movementSound: "walking.mp3"
+            },
+            {
+                movingImage: "Tiger_T.gif",
+                staticImage1: "Tiger_Static1.png",
+                staticImage2: "Tiger_Static1.png",
+                movementSound: "walking.mp3"
+            },
+            {
+                movingImage: "Wb_T.gif",
+                staticImage1: "Wb_Static1.png",
+                staticImage2: "Wb_Static1.png",
+                movementSound: "walking.mp3"
+            },
+            {
+                movingImage: "Ost_T.gif",
+                staticImage1: "Ost_Static1.png",
+                staticImage2: "Ost_Static1.png",
+                movementSound: "walking.mp3"
+            },
+            {
+                movingImage: "Racoon_T.gif",
+                staticImage1: "Racoon_Static1.png",
+                staticImage2: "Racoon_Static1.png",
+                movementSound: "walking.mp3"
+            },
+            {
+                movingImage: "Rhino_T.gif",
+                staticImage1: "Rhino_Static1.png",
+                staticImage2: "Rhino_Static1.png",
+                movementSound: "walking.mp3"
+            },
+            {
+                movingImage: "Bear_T.gif",
+                staticImage1: "Bear_Static1.png",
+                staticImage2: "Bear_Static1.png",
+                movementSound: "walking.mp3"
+            }
+        ];
+
+        const words = Object.keys(wordsAndAudio2);
+
+        let dragging = false;
+        let highlightedLetter = null;
+        let colorChangeEnabled = true;
+        let colorHighlightEnabled = true;
+        let currentWordIndex = 0;
+        let currentMode = 'test';
+        let isCustomWord = false;
+        let currentAudio = null;
+        let colorChangeInterval = null;
+        let isRepeatMode = false;
+        let isMode3AudioEnabled = true;
+        let isFirstLetterListenerActive = false;
+        let firstLetterTouchHandler = null;
+        let useMode3Audio = false;
+        let currentImageSetIndex;
+        let isImageMovementComplete = false;
+        let currentMovementTimeout = null;
+        let isImageMoving = false;
+        let movementAudio = null;
+        let totalAssets = 0;
+        let loadedAssets = 0;
+
+        const letterCombos = [
+           { combo: 'sh', color: '#fbd9d3' },
+           { combo: 'th', color: 'green' },
+           { combo: 'ch', color: 'blue' },
+           { combo: 'oul', color: 'purple' },
+           { combo: 'oa', color: 'orange' },
+           { combo: 'ea', color: 'brown' },
+           { combo: 'ee', color: 'pink' },
+           { combo: 'ou', color: '#006a6a' },
+           { combo: 'igh', color: 'magenta' },
+           { combo: 'wh', color: '#FFAE42' }
+        ];
+
+        function updateProgressBar() {
+            const percentage = Math.round((loadedAssets / totalAssets) * 100);
+            document.getElementById('progressFill').style.width = `${percentage}%`;
+            document.getElementById('progressPercentage').textContent = `${percentage}%`;
+        }
+
+        function preloadAudio() {
+            const audioFiles = [
+                'OtherLessons_Mode2Audio1.mp3',
+                'Lesson1_Mode3.mp3',
+                'yay.mpeg',
+                'walking.mp3',
+                ...Object.values(wordsAndAudio2)
+            ];
+
+            totalAssets += audioFiles.length;
+
+            const audioPromises = audioFiles.map(file => {
+                return new Promise((resolve, reject) => {
+                    const audio = new Audio();
+                    audio.addEventListener('canplaythrough', () => {
+                        loadedAssets++;
+                        updateProgressBar();
+                        resolve();
+                    }, { once: true });
+                    audio.addEventListener('error', reject);
+                    audio.src = file;
+                    audio.preload = 'auto';
+                });
+            });
+
+            return Promise.all(audioPromises);
+        }
+
+        function preloadImages() {
+            const imageFiles = imageSets.flatMap(set => [
+                set.movingImage,
+                set.staticImage1,
+                set.staticImage2
+            ]);
+
+            totalAssets += imageFiles.length;
+
+            const imagePromises = imageFiles.map(file => {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        loadedAssets++;
+                        updateProgressBar();
+                        resolve();
+                    };
+                    img.onerror = reject;
+                    img.src = file;
+                });
+            });
+
+            return Promise.all(imagePromises);
+        }
+
+        function showLoadingIndicator() {
+            document.getElementById('loadingIndicator').style.display = 'block';
+        }
+
+        function hideLoadingIndicator() {
+            document.getElementById('loadingIndicator').style.display = 'none';
+        }
+
+        function initializeApp() {
+            showLoadingIndicator();
+            totalAssets = 0;
+            loadedAssets = 0;
+
+            Promise.all([
+                preloadAudio(),
+                preloadImages()
+            ]).then(() => {
+                hideLoadingIndicator();
+                console.log('All assets preloaded');
+                setupInitialState();
+            }).catch(error => {
+                console.error('Error preloading assets:', error);
+                hideLoadingIndicator();
+                setupInitialState();
+            });
+        }
+
+        function setupInitialState() {
+            goButton.style.display = 'inline-block';
+            previousButton.style.display = 'none';
+            nextButton.style.display = 'none';
+            customButton.style.display = 'none';
+            toggleCButton.style.display = 'none';
+            toggleFCButton.style.display = 'none';
+            modeCirclesContainer.style.display = 'none';
+            imageContainer.style.display = 'none';
+            staticImage2Container.style.display = 'none';
+            moveGifButton.style.display = 'none';
+            initializeImageSets();
+        }
+
+        function initializeImageSets() {
+            currentImageSetIndex = Math.floor(Math.random() * imageSets.length);
+            updateImages();
+        }
+
+        function updateImages() {
+            const currentSet = imageSets[currentImageSetIndex];
+            movingImage.src = currentSet.movingImage;
+            staticImage1.src = currentSet.staticImage1;
+            document.getElementById('staticImage2').src = currentSet.staticImage2;
+        }
+
+        function nextImageSet() {
+            currentImageSetIndex = (currentImageSetIndex + 1) % imageSets.length;
+            updateImages();
+        }
+
+        function addWordEventListeners() {
+            wordElement.addEventListener('mousedown', handleMouseDown);
+            document.body.addEventListener('mousemove', handleMouseMove);
+            document.body.addEventListener('mouseup', handleMouseUp);
+            wordElement.addEventListener('touchstart', handleTouchStart);
+            document.body.addEventListener('touchmove', handleTouchMove);
+            document.body.addEventListener('touchend', handleTouchEnd);
+            document.addEventListener('keydown', handleKeyPress);
+        }
+
+        function removeWordEventListeners() {
+            wordElement.removeEventListener('mousedown', handleMouseDown);
+            document.body.removeEventListener('mousemove', handleMouseMove);
+            document.body.removeEventListener('mouseup', handleMouseUp);
+            wordElement.removeEventListener('touchstart', handleTouchStart);
+            document.body.removeEventListener('touchmove', handleTouchMove);
+            document.body.removeEventListener('touchend', handleTouchEnd);
+        }
+
+        goButton.addEventListener('click', handleGo);
+        nextButton.addEventListener('click', handleNext);
+        previousButton.addEventListener('click', handlePrevious);
+        customButton.addEventListener('click', handleCustom);
+        tickButton.addEventListener('click', handleTick);
+        lessonsButton.addEventListener('click', handleLessons);
+        toggleCButton.addEventListener('click', handleToggleC);
+        toggleFCButton.addEventListener('click', handleToggleFC);
+        repeatModeCircle.addEventListener('click', () => switchMode('repeat'));
+        testModeCircle.addEventListener('click', () => switchMode('test'));
+        moveGifButton.addEventListener('click', moveImageToRightEdge);
+
+        function handleKeyPress(event) {
+            if (event.key === 'Tab' || event.key === '+' || event.key === 'ArrowLeft') {
+                event.preventDefault();
+                moveImageToRightEdge();
+            }
+        }
+
+        function handleMouseDown(event) {
+            if ((currentMode === 'test' || currentMode === 'custom') && event.buttons === 1) {
+                dragging = true;
+                handleMouseMove(event);
+            }
+        }
+
+        function handleMouseMove(event) {
+            if ((currentMode === 'test' || currentMode === 'custom') && dragging && colorChangeEnabled) {
+                const x = event.clientX;
+                const y = event.clientY;
+                updateLetterColors(x, y);
+            }
+        }
+
+        function handleMouseUp() {
+            if (currentMode === 'test' || currentMode === 'custom') {
+                dragging = false;
+                highlightLetterCombos();
+            }
+        }
+
+        function handleTouchStart(event) {
+            if (currentMode === 'test' || currentMode === 'custom') {
+                dragging = true;
+                handleTouchMove(event);
+            }
+        }
+
+        function handleTouchMove(event) {
+            if ((currentMode === 'test' || currentMode === 'custom') && dragging && colorChangeEnabled) {
+                const x = event.touches[0].clientX;
+                const y = event.touches[0].clientY;
+                updateLetterColors(x, y);
+            }
+        }
+
+        function handleTouchEnd() {
+            if (currentMode === 'test' || currentMode === 'custom') {
+                dragging = false;
+                highlightLetterCombos();
+            }
+        }
+
+        function updateLetterColors(x, y) {
+            if (!colorChangeEnabled) return;
+
+            const letters = Array.from(wordElement.querySelectorAll('span'));
+            letters.forEach((letter, index) => {
+                const rect = letter.getBoundingClientRect();
+                const midX = (rect.left + rect.right) / 2;
+                const midY = (rect.top + rect.bottom) / 2;
+                const diffX = Math.abs(midX - x);
+                const diffY = Math.abs(midY - y);
+                const shouldChangeColor = diffX < 50 && diffY < 120;
+
+                if (shouldChangeColor) {
+                    const comboFound = highlightCombo(index, '#bf6347');
+                    if (!comboFound) {
+                        letter.style.color = '#bf6347';
+                    }
+                }
+            });
+        }
+
+        function highlightCombo(startIndex, color) {
+            const letters = Array.from(wordElement.querySelectorAll('span'));
+            for (const { combo } of letterCombos) {
+                for (let i = Math.max(0, startIndex - combo.length + 1); i <= startIndex; i++) {
+                    if (i + combo.length <= letters.length) {
+                        const comboSpans = letters.slice(i, i + combo.length);
+                        const comboText = comboSpans.map(span => span.textContent.toLowerCase()).join('');
+                        
+                        if (comboText === combo.toLowerCase() && comboSpans.every((span, index, array) => 
+                            index === 0 || span.previousSibling === array[index - 1])) {
+                            comboSpans.forEach(span => span.style.color = color);
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        function highlightLetterCombos() {
+            const letters = Array.from(wordElement.querySelectorAll('span'));
+            letters.forEach(letter => letter.style.color = 'black');
+
+            if (colorHighlightEnabled) {
+                for (let i = 0; i < letters.length; i++) {
+                    for (const { combo, color } of letterCombos) {
+                        if (i + combo.length <= letters.length) {
+                            const comboSpans = letters.slice(i, i + combo.length);
+                            const comboText = comboSpans.map(span => span.textContent.toLowerCase()).join('');
+                            
+                            if (comboText === combo.toLowerCase() && comboSpans.every((span, index, array) => 
+                                index === 0 || span.previousSibling === array[index - 1])) {
+                                comboSpans.forEach(span => span.style.color = color);
+                                i += combo.length - 1;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        function handleGo() {
+            currentWordIndex = 0;
+            isCustomWord = false;
+            displayWord(words[currentWordIndex]);
+            goButton.style.display = 'none';
+            previousButton.style.display = 'none';
+            nextButton.style.display = 'inline-block';
+            customButton.style.display = 'inline-block';
+            toggleCButton.style.display = 'inline-block';
+            toggleFCButton.style.display = 'inline-block';
+            modeCirclesContainer.style.display = 'flex';
+            moveGifButton.style.display = 'block';
+            enableModeCircles();
+            switchMode('test');
+            showImage();
+        }   
+
+        function handleNext() {
+            currentWordIndex = (currentWordIndex + 1) % words.length;
+            isCustomWord = false;
+            displayWord(words[currentWordIndex]);
+            previousButton.style.display = 'inline-block';
+            customInputContainer.style.display = 'none';
+            customInput.value = '';
+            enableModeCircles();
+            switchMode('test');
+            resetImagePosition();
+            nextImageSet();
+        }
+
+        function handlePrevious() {
+            currentWordIndex = (currentWordIndex - 1 + words.length) % words.length;
+            isCustomWord = false;
+            displayWord(words[currentWordIndex]);
+            
+            if (currentWordIndex === 0) {
+                previousButton.style.display = 'none';
+            }
+            
+            customInputContainer.style.display = 'none';
+            customInput.value = '';
+            enableModeCircles();
+            switchMode('test');
+            resetImagePosition();
+        }
+        
+        function enableCustomWordColorChange() {
+            colorChangeEnabled = true;
+            toggleCButton.classList.remove('greyed');
+            addWordEventListeners();
+            currentMode = 'custom';
+        }
+
+        function handleCustom() {
+            stopCurrentMode();
+            wordElement.innerHTML = '';
+            customInputContainer.style.display = 'flex';
+            customInput.focus();
+            disableModeCircles();
+            repeatModeCircle.classList.remove('active');
+            testModeCircle.classList.remove('active');
+            colorChangeEnabled = true;
+            toggleCButton.classList.remove('greyed');
+            currentMode = 'custom';
+            isCustomWord = true;
+            removeWordEventListeners();
+        }
+
+        function handleTick() {
+            const customText = customInput.value.trim();
+            if (customText.length > 0) {
+                isCustomWord = true;
+                displayWord(customText);
+                customInputContainer.style.display = 'none';
+                customInput.value = '';
+                resetImagePosition();
+                enableCustomWordColorChange();
+            } else {
+                customInputContainer.style.display = 'none';
+            }
+            toggleCButton.style.display = 'inline-block';
+            toggleFCButton.style.display = 'inline-block';
+            highlightLetterCombos();
+        }
+
+        function handleLessons() {
+            window.location.href = 'lessons.html';
+        }
+
+        function handleToggleC() {
+            if (currentMode === 'test' || isCustomWord) {
+                colorChangeEnabled = !colorChangeEnabled;
+                toggleCButton.classList.toggle('greyed', !colorChangeEnabled);
+            }
+        }
+
+        function handleToggleFC() {
+            colorHighlightEnabled = !colorHighlightEnabled;
+            toggleFCButton.classList.toggle('greyed', !colorHighlightEnabled);
+            highlightLetterCombos();
+        }
+
+        function displayWord(word) {
+            wordElement.innerHTML = '';
+            for (let char of word) {
+                if (char === ' ') {
+                    wordElement.appendChild(document.createTextNode(' '));
+                } else {
+                    const span = document.createElement('span');
+                    span.textContent = char;
+                    span.style.fontFamily = 'Lexend, sans-serif';
+                    wordElement.appendChild(span);
+                }
+            }
+            highlightLetterCombos();
+        }
+
+        function switchMode(mode) {
+            if (isCustomWord) return;
+
+            stopCurrentMode();
+
+            currentMode = mode;
+            repeatModeCircle.classList.remove('active');
+            testModeCircle.classList.remove('active');
+
+            isRepeatMode = (mode === 'repeat');
+
+            removeWordEventListeners();
+            removeFirstLetterListener();
+
+            highlightLetterCombos();
+
+            switch (mode) {
+                case 'repeat':
+                    repeatModeCircle.classList.add('active');
+                    playAudioAndSimulateColorChange('repeat');
+                    break;
+                case 'test':
+                    testModeCircle.classList.add('active');
+                    setupTestMode();
+                    break;
+            }
+        }
+
+        function playAudioAndSimulateColorChange(mode) {
+            const word = wordElement.textContent;
+            const letters = Array.from(wordElement.querySelectorAll('span'));
+            
+            letters.forEach(letter => letter.style.color = 'black');
+            highlightLetterCombos();
+
+            if (mode === 'repeat') {
+                const audio1 = new Audio('OtherLessons_Mode2Audio1.mp3');
+                const audio2 = new Audio(wordsAndAudio2[word]);
+
+                currentAudio = audio1;
+
+                audio1.onended = () => {
+                    setupFirstLetterTouchListener(letters, audio2);
+                };
+
+                audio1.play();
+                colorChangeEnabled = false;
+            }
+            
+            toggleCButton.classList.toggle('greyed', !colorChangeEnabled);
+        }
+
+        function setupTestMode() {
+            if (isMode3AudioEnabled && useMode3Audio) {
+                const audio = new Audio(`Lesson1_Mode3.mp3`);
+                currentAudio = audio;
+                audio.play();
+            }
+            colorChangeEnabled = true;
+            toggleCButton.classList.remove('greyed');
+            addWordEventListeners();
+        }
+
+        function removeFirstLetterListener() {
+            if (isFirstLetterListenerActive) {
+                const firstLetter = wordElement.querySelector('span');
+                firstLetter.removeEventListener('touchstart', firstLetterTouchHandler);
+                firstLetter.removeEventListener('mousedown', firstLetterTouchHandler);
+                isFirstLetterListenerActive = false;
+            }
+        }
+
+        function setupFirstLetterTouchListener(letters, audio2) {
+            removeFirstLetterListener();
+
+            const firstLetter = letters[0];
+            firstLetterTouchHandler = (event) => {
+                event.preventDefault();
+                audio2.play();
+                simulateColorChange(letters);
+                
+                audio2.onended = () => {
+                    setupFirstLetterTouchListener(letters, audio2);
+                };
+            };
+
+            firstLetter.addEventListener('touchstart', firstLetterTouchHandler);
+            firstLetter.addEventListener('mousedown', firstLetterTouchHandler);
+            isFirstLetterListenerActive = true;
+        }
+
+        function simulateColorChange(letters) {
+            let index = 0;
+
+            function changeNextLetter() {
+                if (index < letters.length) {
+                    let delay = STANDARD_DELAY;
+                    let comboLength = 1;
+
+                    for (const { combo, color } of letterCombos) {
+                        if (index + combo.length <= letters.length) {
+                            const comboText = letters.slice(index, index + combo.length)
+                                .map(span => span.textContent.toLowerCase()).join('');
+                            
+                            if (comboText === combo.toLowerCase()) {
+                                for (let i = 0; i < combo.length; i++) {
+                                    letters[index + i].style.color = '#bf6347';
+                                }
+                                comboLength = combo.length;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (comboLength === 1) {
+                        letters[index].style.color = '#bf6347';
+                        const currentLetter = letters[index].textContent.toLowerCase();
+                        if (SPECIAL_LETTERS.includes(currentLetter)) {
+                            delay = SPECIAL_LETTER_DELAY;
+                        }
+                    }
+
+                    index += comboLength;
+
+                    colorChangeInterval = setTimeout(changeNextLetter, delay);
+                } else {
+                    colorChangeInterval = setTimeout(() => {
+                        highlightLetterCombos();
+                    }, 500);
+                }
+            }
+
+            letters.forEach(letter => letter.style.color = 'black');
+            highlightLetterCombos();
+
+            changeNextLetter();
+        }
+
+        function stopCurrentMode() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+            if (colorChangeInterval) {
+                clearTimeout(colorChangeInterval);
+            }
+            highlightLetterCombos();
+        }
+
+        function enableModeCircles() {
+            [repeatModeCircle, testModeCircle].forEach(circle => {
+                circle.classList.remove('disabled');
+                circle.style.pointerEvents = 'auto';
+            });
+        }
+
+        function disableModeCircles() {
+            [repeatModeCircle, testModeCircle].forEach(circle => {
+                circle.classList.add('disabled');
+                circle.style.pointerEvents = 'none';
+            });
+        }
+
+        function showImage() {
+            imageContainer.style.display = 'block';
+            imageContainer.style.left = '0';
+            staticImage2Container.style.display = 'block';
+            positionImagesVertically();
+            updateImages();
+        }
+
+        function positionImagesVertically() {
+            const distanceFromBottom1 = 100;
+            const distanceFromBottom2 = 150;
+            const viewportHeight = window.innerHeight;
+
+            imageContainer.style.top = `${viewportHeight - distanceFromBottom1}px`;
+            imageContainer.style.transform = 'translateY(-50%)';
+
+            staticImage2Container.style.top = `${viewportHeight - distanceFromBottom2}px`;
+            staticImage2Container.style.transform = 'translateY(-50%)';
+        }
+
+        function changeToGif() {
+            staticImage1.style.display = 'none';
+            movingImage.style.display = 'block';
+        }
+
+        function changeToStaticImage1() {
+            movingImage.style.display = 'none';
+            staticImage1.style.display = 'block';
+        }
+
+        function moveImageToRightEdge() {
+            if (isImageMoving) return;
+
+            const screenWidth = window.innerWidth;
+            const staticImage2Width = staticImage2Container.offsetWidth;
+            const targetPosition = screenWidth - staticImage2Width - imageContainer.offsetWidth;
+            moveImageTo(targetPosition);
+        }
+
+        function moveImageTo(targetPosition) {
+            if (isImageMoving) return;
+
+            if (currentMovementTimeout) {
+                clearTimeout(currentMovementTimeout);
+            }
+
+            isImageMoving = true;
+            changeToGif();
+            const currentPosition = parseFloat(imageContainer.style.left) || 0;
+            const distance = targetPosition - currentPosition;
+            const duration = (Math.abs(distance) / GIF_SPEED_PIXELS_PER_SECOND) * 1000;
+            imageContainer.style.transition = `left ${duration}ms linear`;
+            imageContainer.style.left = `${targetPosition}px`;
+            
+            isImageMovementComplete = false;
+            
+            const currentSet = imageSets[currentImageSetIndex];
+            movementAudio = new Audio(currentSet.movementSound);
+            movementAudio.loop = true;
+            movementAudio.play();
+            
+            currentMovementTimeout = setTimeout(() => {
+                changeToStaticImage1();
+                isImageMovementComplete = true;
+                isImageMoving = false;
+                
+                if (movementAudio) {
+                    movementAudio.pause();
+                    movementAudio.currentTime = 0;
+                }
+                
+                playSuccessAudio();
+                currentMovementTimeout = null;
+            }, duration);
+        }
+        
+        function playSuccessAudio() {
+            if (isImageMovementComplete) {
+                const successAudio = new Audio('yay.mpeg');
+                successAudio.play();
+            }
+        }
+
+        function resetImagePosition() {
+            if (currentMovementTimeout) {
+                clearTimeout(currentMovementTimeout);
+                currentMovementTimeout = null;
+            }
+
+            if (movementAudio) {
+                movementAudio.pause();
+                movementAudio.currentTime = 0;
+            }
+
+            isImageMovementComplete = false;
+            isImageMoving = false;
+            
+            imageContainer.style.transition = 'none';
+            imageContainer.style.left = '0';
+            changeToStaticImage1();
+            setTimeout(() => {
+                imageContainer.style.transition = 'left 1s linear';
+            }, 50);
+        }
+
+        function toggleMode3Audio() {
+            isMode3AudioEnabled = !isMode3AudioEnabled;
+        }
+
+        window.addEventListener('load', initializeApp);
+        window.addEventListener('resize', positionImagesVertically);
+    </script>
+</body>
+</html>
