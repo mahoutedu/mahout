@@ -1278,64 +1278,26 @@ function handleCustom() {
 
     const firstLetter = letters[0];
     let isSimulationComplete = false;
-    let isStarting = false;  // Add flag to track simulation start
+    let isStarting = false;
     
     function startSimulation(event) {
-    event.preventDefault();
-    isStarting = true;  // Set flag when starting
-    console.log('Start simulation triggered');
-    console.log('Current state:', {
-        isAudioPlaying,
-        isAudioGuideActive
-    });
+        event.preventDefault();
+        isStarting = true;
+        console.log('Start simulation triggered');
+        console.log('Current state:', {
+            isAudioPlaying,
+            isAudioGuideActive
+        });
 
-    if (isAudioPlaying || isAudioGuideActive) {
-        console.log('Audio playing or guide active, returning');
-        isStarting = false;
-        return;
-    }
-
-    // Create a silent audio context and try to play it to unlock audio
-    const unlockAudio = document.createElement('audio');
-    unlockAudio.setAttribute('src', 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA');
-
-    // Initialize or resume AudioContext during letter touch
-    if (!globalAudioContext) {
-        console.log('Creating new AudioContext during letter touch');
-        globalAudioContext = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    
-    console.log('Current AudioContext state:', globalAudioContext.state);
-    
-    // Try to unlock audio with both approaches
-    Promise.all([
-        unlockAudio.play().then(() => unlockAudio.pause()).catch(console.log),
-        globalAudioContext.resume()
-    ])
-    .then(() => {
-        console.log('Audio unlock attempts complete');
-        console.log('AudioContext state after unlock:', globalAudioContext.state);
-        return new Promise(resolve => setTimeout(resolve, 100));
-    })
-    .then(() => {
-        if (globalAudioContext.state === 'running') {
-            console.log('AudioContext is running, proceeding with simulation');
-            proceedWithSimulation();
-        } else {
-            console.log('AudioContext still not running:', globalAudioContext.state);
+        if (isAudioPlaying || isAudioGuideActive) {
+            console.log('Audio playing or guide active, returning');
+            isStarting = false;
+            return;
         }
-        isStarting = false;
-    })
-    .catch(err => {
-        console.log('Error in audio setup:', err);
-        isStarting = false;
-    });
-}
 
-    function proceedWithSimulation() {
-        console.log('Proceeding with simulation');
+        // Try direct audio playback
+        console.log('Attempting direct audio playback');
         if (currentWordAudio) {
-            console.log('Stopping current word audio');
             currentWordAudio.pause();
             currentWordAudio.currentTime = 0;
         }
@@ -1344,14 +1306,18 @@ function handleCustom() {
         isAudioPlaying = true;
         isSimulationComplete = false;
         
-        console.log('Attempting to play audio');
         audio.play()
             .then(() => {
-                console.log('Audio started playing successfully');
+                console.log('Audio started successfully');
+                simulateColorChange(letters, () => {
+                    console.log('Color change simulation complete');
+                    isSimulationComplete = true;
+                });
             })
             .catch(err => {
                 console.log('Audio play failed:', err);
                 isAudioPlaying = false;
+                isStarting = false;
             });
 
         audio.onended = () => {
@@ -1359,18 +1325,14 @@ function handleCustom() {
             isAudioPlaying = false;
             isSimulationComplete = true;
             currentWordAudio = null;
+            isStarting = false;
         };
-        
-        simulateColorChange(letters, () => {
-            console.log('Color change simulation complete');
-            isSimulationComplete = true;
-        });
     }
 
     function stopSimulation() {
         if (isStarting) {
             console.log('Ignoring stop while starting simulation');
-            return;  // Don't stop if we're still starting
+            return;
         }
 
         if (!isSimulationComplete) {
