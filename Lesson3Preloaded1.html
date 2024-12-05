@@ -1300,56 +1300,39 @@ function handleCustom() {
             console.log('Creating new AudioContext during letter touch');
             globalAudioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
+
+        // Try direct audio playback
+        console.log('Attempting direct audio playback');
+        if (currentWordAudio) {
+            currentWordAudio.pause();
+            currentWordAudio.currentTime = 0;
+        }
         
-        // Force resume AudioContext and verify its state
-        console.log('Attempting to force resume AudioContext');
-        globalAudioContext.resume()
+        currentWordAudio = audio;
+        isAudioPlaying = true;
+        isSimulationComplete = false;
+        
+        audio.play()
             .then(() => {
-                console.log('AudioContext state after force resume:', globalAudioContext.state);
-                if (globalAudioContext.state === 'running') {
-                    console.log('AudioContext successfully running');
-                }
-                proceedWithAudioPlayback();
+                console.log('Audio started successfully');
+                simulateColorChange(letters, () => {
+                    console.log('Color change simulation complete');
+                    isSimulationComplete = true;
+                });
             })
             .catch(err => {
-                console.log('AudioContext resume failed:', err);
-                proceedWithAudioPlayback();  // Try playback anyway
+                console.log('Audio play failed:', err);
+                isAudioPlaying = false;
+                isStarting = false;
             });
 
-        function proceedWithAudioPlayback() {
-            // Direct audio playback code
-            console.log('Attempting direct audio playback');
-            if (currentWordAudio) {
-                currentWordAudio.pause();
-                currentWordAudio.currentTime = 0;
-            }
-            
-            currentWordAudio = audio;
-            isAudioPlaying = true;
-            isSimulationComplete = false;
-            
-            audio.play()
-                .then(() => {
-                    console.log('Audio started successfully');
-                    simulateColorChange(letters, () => {
-                        console.log('Color change simulation complete');
-                        isSimulationComplete = true;
-                    });
-                })
-                .catch(err => {
-                    console.log('Audio play failed:', err);
-                    isAudioPlaying = false;
-                    isStarting = false;
-                });
-
-            audio.onended = () => {
-                console.log('Audio ended');
-                isAudioPlaying = false;
-                isSimulationComplete = true;
-                currentWordAudio = null;
-                isStarting = false;
-            };
-        }
+        audio.onended = () => {
+            console.log('Audio ended');
+            isAudioPlaying = false;
+            isSimulationComplete = true;
+            currentWordAudio = null;
+            isStarting = false;
+        };
     }
 
     function stopSimulation() {
