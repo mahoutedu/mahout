@@ -1,1111 +1,1951 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ReadingApp - Lesson 3</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap">
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-            position: fixed;
-            font-family: 'Lexend', sans-serif;
-            background-color: #fff0db;
-            background-image: url('background.svg');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+	<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<title>ReadingApp - Activity 3</title>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap">
+		<style>
+			html, body {
+				margin: 0;
+				padding: 0;			
+				height: 100%;
+				width: 100%;
+				overflow: hidden;
+				position: fixed;
+				font-family: 'Lexend', sans-serif;
+				background-color: #fff0db;
+				background-image: url('https://static.wixstatic.com/shapes/d6e04b_9de320a047ed4131baded6d08d27e054.svg');
+				background-size: cover;	
+				background-repeat: no-repeat;
+				background-position: center;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+
+			.content {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				height: 100%;
+				width: 100%;
+				position: absolute;
+				top: 0;
+				left: 0;
+			}
+
+			.word {
+				font-size: 30vh;
+				font-weight: bold;
+				color: black;
+				user-select: none;
+				cursor: default;
+				display: inline-block;
+				justify-content: center;
+				transition: color 0.3s;
+				font-family: 'Lexend', sans-serif;
+				text-align: center;
+			}
+
+			#buttons-container {
+				position: absolute;
+				top: 20px;
+				display: flex;
+				justify-content: center;
+				width: 25%;
+			}
+
+			#resetButton, #nextButton, #goButton, #previousButton, #customButton, #lessonsButton, #toggleCButton, #toggleFCButton {
+				padding: 9px 10px;
+				color: white;
+				border: none;
+				border-radius: 5px;
+				cursor: pointer;
+				margin: 0 10px;
+				transition: background-color 0.3s;
+				font-family: 'Lexend', sans-serif;
+			}
+
+			#resetButton, #goButton, #nextButton, #previousButton, #customButton {
+				background-color: #007bff;
+			}
+
+			#resetButton:hover, #nextButton:hover, #previousButton:hover, #customButton:hover {
+				background-color: #0056b3;
+			}
+
+			#lessonsButton {
+				position: absolute;
+				top: 22px;
+				right: 20px;
+				background-color: #28a745;
+			}
+
+			#lessonsButton:hover {
+				background-color: #218838;
+			}
+
+			#customInputContainer {
+				display: none;
+				flex-direction: column-reverse;
+				align-items: center;
+				margin-top: 20px;
+			}
+
+			#customInput {
+				font-size: 12em;
+				font-weight: bold;
+				border: none;
+				outline: none;
+				background: none;
+				color: black;
+				text-align: center;
+				font-family: 'Lexend', sans-serif;
+				max-width: 80vw;
+				margin-top: 10px;
+			}
+
+			#tickButton {
+				background: none;
+				border: none;
+				cursor: pointer;
+				margin-bottom: 10px;
+			}
+
+			#tickButton img {
+				width: 40px;
+				height: 40px;
+			}
+
+			#toggleCButton, #toggleFCButton {
+				position: absolute;
+				top: 20px;
+				right: 200px;
+				width: 50px;
+				height: 40px;
+				background-color: #bf6347;
+				color: #fff0db;
+				font-size: 20px;
+				text-align: center;
+				line-height: 20px;
+				display: none;
+			}
+
+			#toggleCButton.greyed, #toggleFCButton.greyed {
+				background-color: grey;
+			}
+
+			#resetButton {
+				display: none;
+			}
+
+			#toggleFCButton {
+				right: 130px;
+				background-color: purple;
+			}
+
+			.mode-circles {
+				position: absolute;
+				top: 100px;
+				right: 40px;
+				display: none;
+				flex-direction: column;
+			}
+
+			.mode-circle {
+				width: 40px;
+				height: 40px;
+				border-radius: 50%;
+				margin-bottom: 10px;
+				cursor: pointer;
+				border: 2px solid #000;
+				background-color: #808080;
+			}
+
+			.mode-circle.active {
+				background-color: #000000;
+			}
+
+			.mode-circle.disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
+
+			.audio-guide-container {
+				position: absolute;
+				top: 100px;
+				left: 40px;
+				display: flex;
+				flex-direction: column;
+			}
+
+			#audioGuideButton {
+				width: 40px;
+				height: 40px;
+				border-radius: 50%;
+				margin-bottom: 10px;
+				cursor: pointer;
+				border: 2px solid #000;
+				background-color: #808080;
+				color: white;
+				font-size: 20px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+
+			#audioGuideButton.active {
+				background-color: #000000;
+			}
+
+			#imageContainer {
+				position: absolute;
+				left: 0;
+				top: 50%;
+				transform: translateY(-50%);
+				transition: left 1s linear;
+				display: none;
+			}
+
+			#movingImage, #staticImage1 {
+				width: 100px;
+				height: 100px;
+				object-fit: contain;
+			}
+			
+			#staticImage2 {
+				width: 250px;
+				height: 250px;
+			}
+
+			#staticImage2Container {
+				position: absolute;
+				right: 0;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+
+			#moveGifButton {
+				position: absolute;
+				top: 20px;
+				left: 50px;
+				width: 5mm;
+				height: 5mm;
+				background-color: white;
+				border: none;
+				border-radius: 50%;
+				cursor: pointer;
+				display: none;
+			}
+
+			#loadingIndicator {
+				position: fixed;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				background-color: rgba(0, 0, 0, 0.7);
+				color: white;
+				padding: 20px;
+				border-radius: 5px;
+				z-index: 1000;
+				text-align: center;
+			}
+
+			#progressBar {
+				width: 200px;
+				height: 20px;
+				background-color: #f0f0f0;
+				border-radius: 10px;
+				margin: 10px 0;
+				overflow: hidden;
+			}
+
+			#progressFill {
+				width: 0%;
+				height: 100%;
+				background-color: #4CAF50;
+				transition: width 0.3s ease-in-out;
+			}
+
+			#progressPercentage {
+				font-weight: bold;
+			}
+			
+			.moving-dot {
+		position: absolute;
+		width: 8px;
+		height: 8px;
+		background-color: black;
+		border-radius: 50%;
+		pointer-events: none;
+		z-index: 1000;
+		transform: translateY(-50%);
+}
+
+#helpButton {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-top: 10px;
+    cursor: pointer;
+    border: 2px solid #000;
+    background-color: #808080;
+    color: white;
+    font-size: 20px;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+#helpButton.active {
+    background-color: #000000;
+}
+
+#infoBox {
+    display: none;
+    position: absolute;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 2px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    max-width: 80%;
+    text-align: center;
+    z-index: 1000;
+    font-family: 'Lexend', sans-serif;
+	font-size: 12px;
+}
+			
+		</style>
+<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Document ready');
+        
+        try {
+            eruda.init({
+                useShadowDom: false,
+                transparent: true,
+                theme: 'Dark',
+                autoScale: true
+            });
+            
+            console.log('Eruda initialized');
+
+            setTimeout(() => {
+                const entryBtn = document.querySelector('.eruda-entry-btn');
+                if (entryBtn) {
+                    console.log('Found entry button, applying styles');
+                    Object.assign(entryBtn.style, {
+                        position: 'fixed !important',
+                        top: '5px !important',
+                        left: '5px !important',
+                        right: 'auto !important',
+                        bottom: 'auto !important',
+                        zIndex: '2147483647',
+                        transform: 'none !important',
+                        margin: '0 !important'
+                    });
+
+                    // Also add a style tag for extra specificity
+                    const styleSheet = document.createElement('style');
+                    styleSheet.textContent = `
+                        .eruda-entry-btn {
+                            position: fixed !important;
+                            top: 5px !important;
+                            left: 5px !important;
+                            right: auto !important;
+                            bottom: auto !important;
+                            transform: none !important;
+                            margin: 0 !important;
+                        }
+                    `;
+                    document.head.appendChild(styleSheet);
+                    console.log('Styles applied to entry button');
+                }
+            }, 1000);
+
+        } catch (error) {
+            console.log('Error:', error);
+        }
+    });
+</script>
+	</head>
+	<body>
+		<div class="content">
+			<div class="mode-circles">
+				<div id="repeatMode" class="mode-circle" title="Repeat Mode"></div>
+				<div id="testMode" class="mode-circle" title="Test Mode"></div>
+			</div>
+			<div class="audio-guide-container">
+				<button id="audioGuideButton" title="Audio Guide">🔊</button>
+				<button id="helpButton" title="Help">?</button>
+			</div>
+			<div class="word">
+				<span></span>
+				<span>Activity 3</span>
+				<span></span>
+			</div>
+			<div id="customInputContainer">
+				<button id="tickButton"><img src="https://static.wixstatic.com/media/d6e04b_a760907b4dac4c9d8d1d43ff664aee5e~mv2.png" alt="Tick"></button>
+				<input type="text" id="customInput" maxlength="100">
+			</div>
+			<button id="lessonsButton">Lessons</button>
+			<button id="moveGifButton"></button>
+			<div id="imageContainer">
+				<img id="movingImage" src="Panda_T.gif" alt="Moving GIF" style="display: none;">
+				<img id="staticImage1" src="Panda_Static.png" alt="Static Image 1">
+			</div>
+			<div id="staticImage2Container">
+				<img id="staticImage2" src="Panda_Static2.png" alt="Static Image 2">
+			</div>
+			<div id="buttons-container">
+				<button id="goButton">Start</button>
+				<button id="previousButton" style="display: none;">Previous</button>
+				<button id="nextButton" style="display: none;">Next</button>
+				<button id="customButton" style="display: none;">Custom</button>
+			</div>
+			<button id="toggleCButton">C</button>
+			<button id="toggleFCButton">D</button>
+		</div>
+		<div id="loadingIndicator" style="display: none;">
+			<div>Loading...</div>
+			<div id="progressBar">
+				<div id="progressFill"></div>
+			</div>
+			<div id="progressPercentage">0%</div>
+		</div>
+		<div id="infoBox"></div>
+		<script>
+		
+		/*---------------------------*/
+		document.addEventListener('touchmove', function (event) {
+            if (event.scale !== 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        // Prevent gesturestart event
+        document.addEventListener('gesturestart', function (event) {
+            event.preventDefault();
+        });
+
+        // Prevent default browser zoom on double-tap
+        let lastTapTime = 0;
+        document.addEventListener('touchend', function (event) {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTapTime;
+            if (tapLength < 500 && tapLength > 0) {
+                event.preventDefault();
+            }
+            lastTapTime = currentTime;
+        });
+
+        // Prevent zoom on mobile devices
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        // Prevent zoom on key combinations (for laptops)
+        document.addEventListener('keydown', function(event) {
+            if ((event.ctrlKey || event.metaKey) && (event.key === '+' || event.key === '-' || event.key === '=')) {
+                event.preventDefault();
+            }
+        });
+
+        // Prevent zoom on mousewheel (for laptops)
+        document.addEventListener('wheel', function(event) {
+            if (event.ctrlKey) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        // Attempt to reset zoom level
+        function resetZoom() {
+            if (typeof document.body.style.zoom !== 'undefined') {
+                document.body.style.zoom = 1;
+            } else {
+                document.body.style.webkitTransform = 'scale(1)';
+                document.body.style.transform = 'scale(1)';
+            }
         }
 
-        .content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            width: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
+        // Reset zoom on load and resize
+        window.addEventListener('load', resetZoom);
+        window.addEventListener('resize', function() {
+            resetZoom();
+            if (document.documentElement.clientWidth !== window.innerWidth) {
+                window.scrollTo(0, 0);
+            }
+        });
 
-        .word {
-            font-size: 12em;
-            font-weight: bold;
-            color: black;
-            user-select: none;
-            cursor: default;
-            display: inline-block;
-            justify-content: center;
-            transition: color 0.3s;
-            font-family: 'Lexend', sans-serif;
-            text-align: center;
-        }
+        // Disable context menu to prevent access to zoom options
+        document.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+        });
+		
+		/*---------------------------*/
+		
+		
+			const wordElement = document.querySelector('.word');
+			const goButton = document.getElementById('goButton');
+			const nextButton = document.getElementById('nextButton');
+			const previousButton = document.getElementById('previousButton');
+			const customButton = document.getElementById('customButton');
+			const customInputContainer = document.getElementById('customInputContainer');
+			const customInput = document.getElementById('customInput');
+			const tickButton = document.getElementById('tickButton');
+			const lessonsButton = document.getElementById('lessonsButton');
+			const toggleCButton = document.getElementById('toggleCButton');
+			const toggleFCButton = document.getElementById('toggleFCButton');
+			const repeatModeCircle = document.getElementById('repeatMode');
+			const testModeCircle = document.getElementById('testMode');
+			const modeCirclesContainer = document.querySelector('.mode-circles');
+			const imageContainer = document.getElementById('imageContainer');
+			const movingImage = document.getElementById('movingImage');
+			const staticImage1 = document.getElementById('staticImage1');
+			const staticImage2Container = document.getElementById('staticImage2Container');
+			const moveGifButton = document.getElementById('moveGifButton');
+			const audioGuideButton = document.getElementById('audioGuideButton');
 
-        #buttons-container {
-            position: absolute;
-            top: 20px;
-            display: flex;
-            justify-content: center;
-            width: 30%;
-        }
+			const GIF_SPEED_CM_PER_SECOND = 3.5;
+			const PIXELS_PER_CM = 37.7952755906;
+			const GIF_SPEED_PIXELS_PER_SECOND = GIF_SPEED_CM_PER_SECOND * PIXELS_PER_CM;
+			
+			const STANDARD_DELAY = 2200;
+			const SPECIAL_LETTER_DELAY = 200;
+			const SPECIAL_LETTERS = ['c', 't', 'k', 'g', 'p', 'b', 'd', 'q', 'j', 'h'];
 
-        #resetButton, #nextButton, #previousButton, #customButton, #lessonsButton, #toggleCButton, #toggleFCButton {
-            padding: 10px 18px;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 0 10px;
-            transition: background-color 0.3s;
-            font-family: 'Lexend', sans-serif;
-        }
+			const wordsAndAudio2 = {
+				'an': 'https://static.wixstatic.com/mp3/d6e04b_ef833fcc95c64de0b011c91dcd629184.mp3',
+                'am': 'https://static.wixstatic.com/mp3/d6e04b_09c23bc4e9e0485fa476891c0684a422.mp3',
+                'as': 'https://static.wixstatic.com/mp3/d6e04b_c8644557ba1643e2918d914eb7446bd3.mp3',
+                'is': 'https://static.wixstatic.com/mp3/d6e04b_b0bd3b2fe30a4eeab8d0b9da1b372c10.mp3',
+                'of': 'https://static.wixstatic.com/mp3/d6e04b_65051ce9493e4b4684c46002fecec7f6.mp3',
+                'on': 'https://static.wixstatic.com/mp3/d6e04b_42c409ebb2f84a28b23484c666f88692.mp3',
+			    'ox': 'https://static.wixstatic.com/mp3/d6e04b_c4e73d063b9a41dbb5571c7d2df5326e.mp3',
+                'us': 'https://static.wixstatic.com/mp3/d6e04b_45f570c9106d4e878097b3483b69d7cf.mp3',
+			    'sa': 'https://static.wixstatic.com/mp3/d6e04b_41bdb96b9abe4070b30486e3a38f9b02.mp3',
+			    'em': 'https://static.wixstatic.com/mp3/d6e04b_c8ee212ba4cc402eb5ea99322943b544.mp3',
+			    'mo': 'https://static.wixstatic.com/mp3/d6e04b_bed9e95c05a947a082b08970a09738f6.mp3',
+                'ro': 'https://static.wixstatic.com/mp3/d6e04b_48c5131b0ec04cfdb72c43e1c2a29000.mp3',
+                'na': 'https://static.wixstatic.com/mp3/d6e04b_3a62a6382d2d49489dfa4209f0fcfd24.mp3',
+                'ne': 'https://static.wixstatic.com/mp3/d6e04b_5249b586f942454da105f878eee1a89a.mp3',
+                'li': 'https://static.wixstatic.com/mp3/d6e04b_7dc06160ae46484eac3fe36f11378a9e.mp3',
+                'ze': 'https://static.wixstatic.com/mp3/d6e04b_89c668f25a1c4e16b15e6a865e9fbce1.mp3',
+                'lo': 'https://static.wixstatic.com/mp3/d6e04b_a6bdc8cffd78470d9244b73b233815dd.mp3',
+			    'in': 'https://static.wixstatic.com/mp3/d6e04b_25aad5b756974953a67a8cb87a451388.mp3',
+			    'fa': 'https://static.wixstatic.com/mp3/d6e04b_70c0ca10936f40c78c866ea0b4c2dca0.mp3',
+			    'vo': 'https://static.wixstatic.com/mp3/d6e04b_63aa6467ce8a40c9b82731a7b1d2fe25.mp3'
+			};
+			
+			const imageSets = [
+				{
+					movingImage: "https://static.wixstatic.com/media/d6e04b_6e8e56f4262e4f4cab9b0f7597d3174a~mv2.gif",
+					staticImage1: "https://static.wixstatic.com/media/d6e04b_d19a89bccf014238b67476070ec1e221~mv2.png",
+					staticImage2: "https://static.wixstatic.com/media/d6e04b_d19a89bccf014238b67476070ec1e221~mv2.png",
+					movementSound: "https://static.wixstatic.com/mp3/d6e04b_142578b12fab44caa49323b22acce4a7.mp3"
+				},
+				{
+					movingImage: "https://static.wixstatic.com/media/d6e04b_9b63b0638b914f30b1372a9c35e41325~mv2.gif",
+					staticImage1: "https://static.wixstatic.com/media/d6e04b_1c6c4d2d7e39449b84d467c704c313e8~mv2.png",
+					staticImage2: "https://static.wixstatic.com/media/d6e04b_1c6c4d2d7e39449b84d467c704c313e8~mv2.png",
+					movementSound: "https://static.wixstatic.com/mp3/d6e04b_142578b12fab44caa49323b22acce4a7.mp3"
+				},
+				{
+					movingImage: "https://static.wixstatic.com/media/d6e04b_19039c75d3db45e49c5ed4e92ab51ab7~mv2.gif",
+					staticImage1: "https://static.wixstatic.com/media/d6e04b_10c4b27836824046ab9b81139a9c1850~mv2.png",
+					staticImage2: "https://static.wixstatic.com/media/d6e04b_10c4b27836824046ab9b81139a9c1850~mv2.png",
+					movementSound: "https://static.wixstatic.com/mp3/d6e04b_142578b12fab44caa49323b22acce4a7.mp3"
+				},
+				{
+					movingImage: "https://static.wixstatic.com/media/d6e04b_900f9ac43e7341af86a107cc249b848e~mv2.gif",
+					staticImage1: "https://static.wixstatic.com/media/d6e04b_efe4e8f5b80c4453afad6a4a874fe029~mv2.png",
+					staticImage2: "https://static.wixstatic.com/media/d6e04b_efe4e8f5b80c4453afad6a4a874fe029~mv2.png",
+					movementSound: "https://static.wixstatic.com/mp3/d6e04b_142578b12fab44caa49323b22acce4a7.mp3"
+				},
+				{
+					movingImage: "https://static.wixstatic.com/media/d6e04b_9b63b0638b914f30b1372a9c35e41325~mv2.gif",
+					staticImage1: "https://static.wixstatic.com/media/d6e04b_1c6c4d2d7e39449b84d467c704c313e8~mv2.png",
+					staticImage2: "https://static.wixstatic.com/media/d6e04b_1c6c4d2d7e39449b84d467c704c313e8~mv2.png",
+					movementSound: "https://static.wixstatic.com/mp3/d6e04b_142578b12fab44caa49323b22acce4a7.mp3"
+				},
+				{
+					movingImage: "https://static.wixstatic.com/media/d6e04b_b74f3e395bd54132a6528ac60248c460~mv2.gif",
+					staticImage1: "https://static.wixstatic.com/media/d6e04b_488f5123f5924c968e6c901bd565dd5a~mv2.png",
+					staticImage2: "https://static.wixstatic.com/media/d6e04b_488f5123f5924c968e6c901bd565dd5a~mv2.png",
+					movementSound: "https://static.wixstatic.com/mp3/d6e04b_142578b12fab44caa49323b22acce4a7.mp3"
+				},
+				{
+					movingImage: "https://static.wixstatic.com/media/d6e04b_395d42c924b54951a93c7f65bea7344e~mv2.gif",
+					staticImage1: "https://static.wixstatic.com/media/d6e04b_da2fb1367c844327a3a3bf95eafcc54c~mv2.png",
+					staticImage2: "https://static.wixstatic.com/media/d6e04b_da2fb1367c844327a3a3bf95eafcc54c~mv2.png",
+					movementSound: "https://static.wixstatic.com/mp3/d6e04b_142578b12fab44caa49323b22acce4a7.mp3"
+				},
+				{
+					movingImage: "https://static.wixstatic.com/media/d6e04b_61035282dea442ae93651ad9f9127e82~mv2.gif",
+					staticImage1: "https://static.wixstatic.com/media/d6e04b_1f0e8b12c4f3466491d090fe192b09c1~mv2.png",
+					staticImage2: "https://static.wixstatic.com/media/d6e04b_1f0e8b12c4f3466491d090fe192b09c1~mv2.png",
+					movementSound: "https://static.wixstatic.com/mp3/d6e04b_142578b12fab44caa49323b22acce4a7.mp3"
+				},
+				{
+					movingImage: "https://static.wixstatic.com/media/d6e04b_9640c319b40747c8b44946a0536a524c~mv2.gif",
+					staticImage1: "https://static.wixstatic.com/media/d6e04b_0029fd8f6a9d4aac84ea786561796eea~mv2.png",
+					staticImage2: "https://static.wixstatic.com/media/d6e04b_0029fd8f6a9d4aac84ea786561796eea~mv2.png",
+					movementSound: "https://static.wixstatic.com/mp3/d6e04b_142578b12fab44caa49323b22acce4a7.mp3"
+				},
+				{
+					movingImage: "https://static.wixstatic.com/media/d6e04b_3a0e64352a5e4c0d9d1d97d899d37a67~mv2.gif",
+					staticImage1: "https://static.wixstatic.com/media/d6e04b_861e2e3e8d414def9af3a3ee4e2e8d10~mv2.png",
+					staticImage2: "https://static.wixstatic.com/media/d6e04b_861e2e3e8d414def9af3a3ee4e2e8d10~mv2.png",
+					movementSound: "https://static.wixstatic.com/mp3/d6e04b_142578b12fab44caa49323b22acce4a7.mp3"
+				},
+				{
+					movingImage: "https://static.wixstatic.com/media/d6e04b_68b6d733ceb54aeda171fd94ccff3546~mv2.gif",
+					staticImage1: "https://static.wixstatic.com/media/d6e04b_5dcbdb1f2fb243e1873accfd81850c16~mv2.png",
+					staticImage2: "https://static.wixstatic.com/media/d6e04b_5dcbdb1f2fb243e1873accfd81850c16~mv2.png",
+					movementSound: "https://static.wixstatic.com/mp3/d6e04b_142578b12fab44caa49323b22acce4a7.mp3"
+				}
+			];
 
-        #resetButton, #nextButton, #previousButton, #customButton {
-            background-color: #007bff;
-        }
+			const words = Object.keys(wordsAndAudio2);
 
-        #resetButton:hover, #nextButton:hover, #previousButton:hover, #customButton:hover {
-            background-color: #0056b3;
-        }
+			let dragging = false;
+			let highlightedLetter = null;
+			let colorChangeEnabled = true;
+			let colorHighlightEnabled = true;
+			let currentWordIndex = 0;
+			let currentMode = 'test';
+			let isCustomWord = false;
+			let currentAudio = null;
+			let colorChangeInterval = null;
+			let isRepeatMode = false;
+			let isMode3AudioEnabled = true;
+			let isFirstLetterListenerActive = false;
+			let firstLetterTouchHandler = null;
+			let useMode3Audio = true;
+			let currentImageSetIndex;
+			let isImageMovementComplete = false;
+			let currentMovementTimeout = null;
+			let isImageMoving = false;
+			let movementAudio = null;
+			let totalAssets = 0;
+			let loadedAssets = 0;
+			let isAudioPlaying = false;
+			let currentWordAudio = null;
+			let isAudioGuideActive = false;
+			let audioContext;
+            let audioBuffers = {};
+			
+			let completionCount = 0;
+			let lastLetterCenterX = 0;
+			let lastLetterCenterY = 0;
 
-        #lessonsButton {
-            position: absolute;
-            top: 22px;
-            right: 20px;
-            background-color: #28a745;
-        }
+			let audioGuideTimeout = null;
+			
+			let sequenceInProgress = false;
+			
+			let globalAudioContext = null;
+			let currentMovementSource = null;
 
-        #lessonsButton:hover {
-            background-color: #218838;
-        }
+			const letterCombos = [
+			   { combo: 'sh', color: '#c23a22' },
+			   { combo: 'th', color: 'green' },
+			   { combo: 'ch', color: 'blue' },
+			   { combo: 'oul', color: 'purple' },
+			   { combo: 'oa', color: 'orange' },
+			   { combo: 'ea', color: 'brown' },
+			   { combo: 'ee', color: 'pink' },
+			   { combo: 'ou', color: '#006a6a' },
+			   { combo: 'igh', color: 'magenta' },
+			   { combo: 'wh', color: '#FFAE42' }
+			];
+			
+			function resetSequence() {
+    sequenceInProgress = false;
+    completionCount = 0;
+    if (audioGuideTimeout) {
+        clearTimeout(audioGuideTimeout);
+    }
+    if (currentMovementTimeout) {
+        clearTimeout(currentMovementTimeout);
+    }
+    stopCurrentMode();
+    resetImagePosition();
+}
 
-        #customInputContainer {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-        }
+			function updateProgressBar() {
+				const percentage = Math.round((loadedAssets / totalAssets) * 100);
+				document.getElementById('progressFill').style.width = `${percentage}%`;
+				document.getElementById('progressPercentage').textContent = `${percentage}%`;
+			}
+			
+			async function preloadAssets() {
+    totalAssets = Object.keys(wordsAndAudio2).length + imageSets.length * 3 + 4; // 4 for the additional audio files
+    loadedAssets = 0;
 
-        #customInput {
-            font-size: 12em;
-            font-weight: bold;
-            border: none;
-            outline: none;
-            background: none;
-            color: black;
-            text-align: center;
-            font-family: 'Lexend', sans-serif;
-            max-width: 80vw;
-            margin-top: 10px;
-        }
+    const audioPromises = Object.values(wordsAndAudio2).map(preloadAudio);
+    const imagePromises = imageSets.flatMap(set => [
+        preloadImage(set.movingImage),
+        preloadImage(set.staticImage1),
+        preloadImage(set.staticImage2)
+    ]);
 
-        #tickButton {
-            background: none;
-            border: none;
-            cursor: pointer;
-            margin-bottom: 10px;
-        }
+    // Add promises for the additional audio files
+    const additionalAudioPromises = [
+        preloadAudio('https://static.wixstatic.com/mp3/d6e04b_d164d7c769b7496496b8ad07073c422f.mp3'), /*RepeatMode_AudioFile*/
+        preloadAudio('https://static.wixstatic.com/mp3/d6e04b_dbe5d74b813641259acf1f37426661bc.mp3'), /*TestMode_AudioFile*/
+        preloadAudio('https://static.wixstatic.com/mp3/d6e04b_6f20d2eb70234bd88522ae219259134e.mp3'), /*Yay_SuccessVoice*/
+        preloadAudio('https://static.wixstatic.com/mp3/d6e04b_142578b12fab44caa49323b22acce4a7.mp3')  /*Walking_Sound*/  
+    ];
 
-        #tickButton img {
-            width: 40px;
-            height: 40px;
-        }
+    await Promise.all([...audioPromises, ...imagePromises, ...additionalAudioPromises]);
+}
 
-        #toggleCButton, #toggleFCButton {
-            position: absolute;
-            top: 20px;
-            right: 200px;
-            width: 50px;
-            height: 40px;
-            background-color: #bf6347;
-            color: #fff0db;
-            font-size: 20px;
-            text-align: center;
-            line-height: 20px;
-            display: none;
-        }
+			function preloadAudio(url) {
+    return fetch(url)
+        .then(response => response.arrayBuffer())
+        .then(arrayBuffer => {
+            return new Promise((resolve, reject) => {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                audioContext.decodeAudioData(arrayBuffer, 
+                    (buffer) => {
+                        audioBuffers[url] = buffer;
+                        loadedAssets++;
+                        updateProgressBar();
+                        resolve();
+                    },
+                    (error) => {
+                        console.error('Error decoding audio data', error);
+                        reject(error);
+                    }
+                );
+            });
+        });
+}
 
-        #toggleCButton.greyed, #toggleFCButton.greyed {
-            background-color: grey;
-        }
+function playAudio(url) {
+    const audio = playAudioWithWebAudio(url);
+    if (audio) {
+        audio.onended = () => {
+            isAudioPlaying = false;
+        };
+        isAudioPlaying = true;
+    }
+    return audio;
+}
 
-        #resetButton {
-            display: none;
-        }
+function resumeAudioContext() {
+    if (audioContext && audioContext.state === 'suspended') {
+        audioContext.resume();
+    }
+}
 
-        #toggleFCButton {
-            right: 130px;
-            background-color: purple;
-        }
+			function preloadImages() {
+				const imageFiles = imageSets.flatMap(set => [
+					set.movingImage,
+					set.staticImage1,
+					set.staticImage2
+				]);
 
-        .mode-circles {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            display: none;
-            flex-direction: column;
-        }
+				totalAssets += imageFiles.length;
 
-        .mode-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-bottom: 10px;
-            cursor: pointer;
-            border: 2px solid #000;
-            background-color: #808080;
-        }
+				const imagePromises = imageFiles.map(file => {
+					return new Promise((resolve, reject) => {
+						const img = new Image();
+						img.onload = () => {
+							loadedAssets++;
+							updateProgressBar();
+							resolve();
+						};
+						img.onerror = reject;
+						img.src = file;
+					});
+				});
 
-        .mode-circle.active {
-            background-color: #000000;
-        }
+				return Promise.all(imagePromises);
+			}
 
-        .mode-circle.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+			function showLoadingIndicator() {
+				document.getElementById('loadingIndicator').style.display = 'block';
+			}
 
-        #imageContainer {
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            transition: left 1s linear;
-            display: none;
-        }
+			function hideLoadingIndicator() {
+				document.getElementById('loadingIndicator').style.display = 'none';
+			}
 
-        #movingImage, #staticImage1 {
-            width: 350px;
-            height: 350px;
-            object-fit: contain;
+			function initializeApp() {
+				showLoadingIndicator();
+				totalAssets = 0;
+				loadedAssets = 0;
+
+				Promise.all([
+					preloadAudio(),
+					preloadImages()
+				]).then(() => {
+					hideLoadingIndicator();
+					console.log('All assets preloaded');
+					setupInitialState();
+				}).catch(error => {
+					console.error('Error preloading assets:', error);
+					hideLoadingIndicator();
+					setupInitialState();
+				});
+			}
+
+			function setupInitialState() {
+				goButton.style.display = 'inline-block';
+				previousButton.style.display = 'none';
+				nextButton.style.display = 'none';
+				customButton.style.display = 'none';
+				toggleCButton.style.display = 'none';
+				toggleFCButton.style.display = 'none';
+				modeCirclesContainer.style.display = 'none';
+				imageContainer.style.display = 'none';
+				staticImage2Container.style.display = 'none';
+				moveGifButton.style.display = 'none';
+				audioGuideButton.style.display = 'none';
+				initializeImageSets();
+			}
+
+			function initializeImageSets() {
+				currentImageSetIndex = Math.floor(Math.random() * imageSets.length);
+				updateImages();
+			}
+
+			function updateImages() {
+				const currentSet = imageSets[currentImageSetIndex];
+				movingImage.src = currentSet.movingImage;
+				staticImage1.src = currentSet.staticImage1;
+				document.getElementById('staticImage2').src = currentSet.staticImage2;
+			}
+
+			function nextImageSet() {
+				currentImageSetIndex = (currentImageSetIndex + 1) % imageSets.length;
+				updateImages();
+			}
+
+			function addWordEventListeners() {
+				wordElement.addEventListener('mousedown', handleMouseDown);
+				document.body.addEventListener('mousemove', handleMouseMove);
+				document.body.addEventListener('mouseup', handleMouseUp);
+				wordElement.addEventListener('touchstart', handleTouchStart);
+				document.body.addEventListener('touchmove', handleTouchMove);
+				document.body.addEventListener('touchend', handleTouchEnd);
+				document.addEventListener('keydown', handleKeyPress);
+			}
+
+			function removeWordEventListeners() {
+				wordElement.removeEventListener('mousedown', handleMouseDown);
+				document.body.removeEventListener('mousemove', handleMouseMove);
+				document.body.removeEventListener('mouseup', handleMouseUp);
+				wordElement.removeEventListener('touchstart', handleTouchStart);
+				document.body.removeEventListener('touchmove', handleTouchMove);
+				document.body.removeEventListener('touchend', handleTouchEnd);
+			}
+
+			goButton.addEventListener('click', handleGo);
+			nextButton.addEventListener('click', handleNext);
+			previousButton.addEventListener('click', handlePrevious);
+			customButton.addEventListener('click', handleCustom);
+			tickButton.addEventListener('click', handleTick);
+			lessonsButton.addEventListener('click', handleLessons);
+			toggleCButton.addEventListener('click', handleToggleC);
+			toggleFCButton.addEventListener('click', handleToggleFC);
+			repeatModeCircle.addEventListener('click', () => switchMode('repeat'));
+			testModeCircle.addEventListener('click', () => switchMode('test'));
+			moveGifButton.addEventListener('click', moveImageToRightEdge);
+			audioGuideButton.addEventListener('click', handleAudioGuide);
+
+			function handleKeyPress(event) {
+				if (event.key === 'Tab' || event.key === '+' || event.key === 'ArrowLeft') {
+					event.preventDefault();
+					moveImageToRightEdge();
+				}
+			}
+
+			function handleMouseDown(event) {
+				if ((currentMode === 'test' || currentMode === 'custom') && event.buttons === 1) {
+					dragging = true;
+					handleMouseMove(event);
+				}
+			}
+
+			function handleMouseMove(event) {
+				if ((currentMode === 'test' || currentMode === 'custom') && dragging && colorChangeEnabled) {
+					const x = event.clientX;
+					const y = event.clientY;
+					updateLetterColors(x, y);
+				}
+			}
+
+			function handleMouseUp() {
+				if (currentMode === 'test' || currentMode === 'custom') {
+					dragging = false;
+					highlightLetterCombos();
+				}
+			}
+
+			function handleTouchStart(event) {
+				if (currentMode === 'test' || currentMode === 'custom') {
+					dragging = true;
+					handleTouchMove(event);
+				}
+			}
+
+			function handleTouchMove(event) {
+				if ((currentMode === 'test' || currentMode === 'custom') && dragging && colorChangeEnabled) {
+					const x = event.touches[0].clientX;
+					const y = event.touches[0].clientY;
+					updateLetterColors(x, y);
+				}
+			}
+
+			function handleTouchEnd() {
+				if (currentMode === 'test' || currentMode === 'custom') {
+					dragging = false;
+					highlightLetterCombos();
+				}
+			}
+
+			function updateLetterColors(x, y) {
+				if (!colorChangeEnabled) return;
+
+				const letters = Array.from(wordElement.querySelectorAll('span'));
+				letters.forEach((letter, index) => {
+					const rect = letter.getBoundingClientRect();
+					const midX = (rect.left + rect.right) / 2;
+					const midY = (rect.top + rect.bottom) / 2;
+					const diffX = Math.abs(midX - x);
+					const diffY = Math.abs(midY - y);
+					const shouldChangeColor = diffX < 50 && diffY < 120;
+
+					if (shouldChangeColor) {
+						const comboFound = highlightCombo(index, '#bf6347');
+						if (!comboFound) {
+							letter.style.color = '#bf6347';
+						}
+					}
+				});
+			}
+
+			function highlightCombo(startIndex, color) {
+				const letters = Array.from(wordElement.querySelectorAll('span'));
+				for (const { combo } of letterCombos) {
+					for (let i = Math.max(0, startIndex - combo.length + 1); i <= startIndex; i++) {
+						if (i + combo.length <= letters.length) {
+							const comboSpans = letters.slice(i, i + combo.length);
+							const comboText = comboSpans.map(span => span.textContent.toLowerCase()).join('');
+							
+							if (comboText === combo.toLowerCase() && comboSpans.every((span, index, array) => 
+								index === 0 || span.previousSibling === array[index - 1])) {
+								comboSpans.forEach(span => span.style.color = color);
+								return true;
+							}
+						}
+					}
+				}
+				return false;
+			}
+
+			function highlightLetterCombos() {
+				const letters = Array.from(wordElement.querySelectorAll('span'));
+				letters.forEach(letter => letter.style.color = 'black');
+
+				if (colorHighlightEnabled) {
+					for (let i = 0; i < letters.length; i++) {
+						for (const { combo, color } of letterCombos) {
+							if (i + combo.length <= letters.length) {
+								const comboSpans = letters.slice(i, i + combo.length);
+								const comboText = comboSpans.map(span => span.textContent.toLowerCase()).join('');
+								
+								if (comboText === combo.toLowerCase() && comboSpans.every((span, index, array) => 
+									index === 0 || span.previousSibling === array[index - 1])) {
+									comboSpans.forEach(span => span.style.color = color);
+									i += combo.length - 1;
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			function handleGo() {
+    currentWordIndex = 0;
+    isCustomWord = false;
+    displayWord(words[currentWordIndex]);
+    helpButton.style.display = 'flex';
+    goButton.style.display = 'none';
+    previousButton.style.display = 'none';
+    nextButton.style.display = 'inline-block';
+    customButton.style.display = 'inline-block';
+    toggleCButton.style.display = 'inline-block';
+    toggleFCButton.style.display = 'inline-block';
+    modeCirclesContainer.style.display = 'flex';
+    moveGifButton.style.display = 'block';
+    audioGuideButton.style.display = 'block';
+    enableModeCircles();
+    switchMode('repeat');
+    showImage();
+    helpButton.classList.add('active');
+    infoBox.textContent = helpTexts.repeat;
+    infoBox.style.display = 'block';
+
+    // Add auto-play after 1 second
+    if (audioGuideTimeout) {
+        clearTimeout(audioGuideTimeout);
+    }
+    audioGuideTimeout = setTimeout(() => {
+        if (!isAudioPlaying) {
+            const audio = new Audio('https://static.wixstatic.com/mp3/d6e04b_d164d7c769b7496496b8ad07073c422f.mp3');
+            currentAudio = audio;
+            isAudioPlaying = true;
+            audio.play();
+            audio.onended = () => {
+                isAudioPlaying = false;
+            };
+        }
+    }, 1000);
+}   
+
+function handleNext() {
+    resetSequence();
+    currentWordIndex = (currentWordIndex + 1) % words.length;
+    isCustomWord = false;
+    displayWord(words[currentWordIndex]);
+    previousButton.style.display = 'inline-block';
+    customInputContainer.style.display = 'none';
+    customInput.value = '';
+    enableModeCircles();
+    switchMode('repeat');
+    resetImagePosition();
+    nextImageSet();
+    
+    if (audioGuideTimeout) {
+        clearTimeout(audioGuideTimeout);
+    }
+    audioGuideTimeout = setTimeout(() => {
+        if (!isAudioPlaying) {
+            const audio = new Audio('https://static.wixstatic.com/mp3/d6e04b_d164d7c769b7496496b8ad07073c422f.mp3');
+            currentAudio = audio;
+            isAudioPlaying = true;
+            audio.play();
+            audio.onended = () => {
+                isAudioPlaying = false;
+            };
+        }
+    }, 1000);
+}
+
+function handlePrevious() {
+    resetSequence();
+    currentWordIndex = (currentWordIndex - 1 + words.length) % words.length;
+    isCustomWord = false;
+    displayWord(words[currentWordIndex]);
+    
+    if (currentWordIndex === 0) {
+        previousButton.style.display = 'none';
+    }
+    
+    customInputContainer.style.display = 'none';
+    customInput.value = '';
+    enableModeCircles();
+    switchMode('repeat');
+    resetImagePosition();
+    
+    if (audioGuideTimeout) {
+        clearTimeout(audioGuideTimeout);
+    }
+    audioGuideTimeout = setTimeout(() => {
+        if (!isAudioPlaying) {
+            const audio = new Audio('https://static.wixstatic.com/mp3/d6e04b_d164d7c769b7496496b8ad07073c422f.mp3');
+            currentAudio = audio;
+            isAudioPlaying = true;
+            audio.play();
+            audio.onended = () => {
+                isAudioPlaying = false;
+            };
+        }
+    }, 1000);
+}
+
+function handleCustom() {
+    resetSequence();
+    wordElement.innerHTML = '';
+    customInputContainer.style.display = 'flex';
+    customInput.focus();
+    disableModeCircles();
+    repeatModeCircle.classList.remove('active');
+    testModeCircle.classList.remove('active');
+    colorChangeEnabled = true;
+    toggleCButton.classList.remove('greyed');
+    currentMode = 'custom';
+    isCustomWord = true;
+    removeWordEventListeners();
+}			
+			
+			function enableCustomWordColorChange() {
+				colorChangeEnabled = true;
+				toggleCButton.classList.remove('greyed');
+				addWordEventListeners();
+				currentMode = 'custom';
+			}
+
+			function handleTick() {
+    const customText = customInput.value.trim();
+    if (customText.length > 0) {
+        isCustomWord = true;
+        displayWord(customText);
+        customInputContainer.style.display = 'none';
+        customInput.value = '';
+        resetImagePosition();
+        enableCustomWordColorChange();
+    } else {
+        customInputContainer.style.display = 'none';
+        customInput.value = '';
+        isCustomWord = false;
+        currentMode = 'test';
+        enableModeCircles();
+        enableCustomWordColorChange();
+        displayWord(words[currentWordIndex]);
+    }
+    toggleCButton.style.display = 'inline-block';
+    toggleFCButton.style.display = 'inline-block';
+    highlightLetterCombos();
+}
+
+			function handleLessons() {
+				window.location.href = 'lessons.html';
+			}
+
+			function handleToggleC() {
+				if (currentMode === 'test' || isCustomWord) {
+					colorChangeEnabled = !colorChangeEnabled;
+					toggleCButton.classList.toggle('greyed', !colorChangeEnabled);
+				}
+			}
+
+			function handleToggleFC() {
+				colorHighlightEnabled = !colorHighlightEnabled;
+				toggleFCButton.classList.toggle('greyed', !colorHighlightEnabled);
+				highlightLetterCombos();
+			}
+
+			function displayWord(word) {
+    completionCount = 0; // Reset counter for new word
+    wordElement.innerHTML = '';
+    for (let char of word) {
+        if (char === ' ') {
+            wordElement.appendChild(document.createTextNode(' '));
+        } else {
+            const span = document.createElement('span');
+            span.textContent = char;
+            span.style.fontFamily = 'Lexend, sans-serif';
+            wordElement.appendChild(span);
+        }
+    }
+    highlightLetterCombos();
+}
+
+			function switchMode(mode) {
+    if (isCustomWord) return;
+
+    stopCurrentMode();
+
+    currentMode = mode;
+    repeatModeCircle.classList.remove('active');
+    testModeCircle.classList.remove('active');
+
+    isRepeatMode = (mode === 'repeat');
+
+    removeFirstLetterListener();
+    removeWordEventListeners();
+
+    resetColors(Array.from(wordElement.querySelectorAll('span')));
+
+    switch (mode) {
+        case 'repeat':
+            repeatModeCircle.classList.add('active');
+            // Reset test mode circle color when switching to repeat mode
+            testModeCircle.style.backgroundColor = '#808080'; // Default color
+            testModeCircle.style.boxShadow = 'none';
+            setupRepeatMode();
+            break;
+        case 'test':
+            testModeCircle.classList.add('active');
+            testModeCircle.style.backgroundColor = '#28a745'; // Green
+            testModeCircle.style.boxShadow = '0 0 10px #28a745';
+            setupTestMode();
+            break;
+    }
+    updateInfoBoxDisplay();
+}
+
+			function setupRepeatMode() {
+				const word = wordElement.textContent;
+				const letters = Array.from(wordElement.querySelectorAll('span'));
+				setupFirstLetterTouchListener(letters, new Audio(wordsAndAudio2[word]));
+			}
+
+			function handleAudioGuide() {
+		if (isAudioPlaying) {
+        stopCurrentMode();
+        return;
+    }
+		
+		const word = wordElement.textContent;
+		const letters = Array.from(wordElement.querySelectorAll('span'));
+
+		if (currentMode === 'repeat') {
+			const audio = new Audio('https://static.wixstatic.com/mp3/d6e04b_d164d7c769b7496496b8ad07073c422f.mp3'); /*RepeatMode_AudioGuide*/
+			currentAudio = audio;
+			isAudioPlaying = true;
+			isAudioGuideActive = true;
+			audio.play();
+			audio.onended = () => {
+				isAudioPlaying = false;
+				isAudioGuideActive = false;
+			};
+		} else if (currentMode === 'test' && isMode3AudioEnabled && useMode3Audio) {
+			const audio = new Audio(`https://static.wixstatic.com/mp3/d6e04b_dbe5d74b813641259acf1f37426661bc.mp3`); /*TestMode_AudioGuide*/
+			currentAudio = audio;
+			isAudioPlaying = true;
+			audio.play();
+			audio.onended = () => {
+				isAudioPlaying = false;
+			};
+		}
+	}
+
+			function playAudioAndSimulateColorChange(mode) {
+		stopCurrentMode();
+		
+		const word = wordElement.textContent;
+		const letters = Array.from(wordElement.querySelectorAll('span'));
+		
+		resetColors(letters);
+
+		if (mode === 'repeat') {
+			const audio1 = new Audio('https://static.wixstatic.com/mp3/d6e04b_d164d7c769b7496496b8ad07073c422f.mp3');
+			const audio2 = new Audio(wordsAndAudio2[word]);
+
+			currentAudio = audio1;
+			isAudioPlaying = true;
+
+			audio1.onended = () => {
+				currentWordAudio = audio2;
+				audio2.play();
+				simulateColorChange(letters);
+				isAudioPlaying = false;
+			};
+
+			audio1.play();
+			colorChangeEnabled = false;
+		}
+		
+		toggleCButton.classList.toggle('greyed', !colorChangeEnabled);
+	}
+
+			function setupTestMode() {
+				colorChangeEnabled = true;
+				toggleCButton.classList.remove('greyed');
+				addWordEventListeners();
+			}
+
+			function removeFirstLetterListener() {
+		if (isFirstLetterListenerActive) {
+			const firstLetter = wordElement.querySelector('span');
+			firstLetter.removeEventListener('touchstart', firstLetterTouchHandler.start);
+			firstLetter.removeEventListener('mousedown', firstLetterTouchHandler.start);
+			document.removeEventListener('touchend', firstLetterTouchHandler.stop);
+			document.removeEventListener('mouseup', firstLetterTouchHandler.stop);
+			isFirstLetterListenerActive = false;
+		}
+	}
+
+	function setupFirstLetterTouchListener(letters, audio) {
+    removeFirstLetterListener();
+
+    const firstLetter = letters[0];
+    let isSimulationComplete = false;
+    
+    function startSimulation(event) {
+        event.preventDefault();
+        if (isAudioPlaying || isAudioGuideActive) return;
+
+        // Initialize or resume AudioContext during letter touch
+        if (!globalAudioContext) {
+            console.log('Creating new AudioContext during letter touch');
+            globalAudioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
         
-        #staticImage2 {
-            width: 500px;
-            height: 500px;
+        if (globalAudioContext.state === 'suspended') {
+            console.log('Resuming AudioContext during letter touch');
+            globalAudioContext.resume()
+                .then(() => {
+                    console.log('AudioContext resumed successfully:', globalAudioContext.state);
+                    proceedWithSimulation();
+                })
+                .catch(err => console.log('AudioContext resume failed:', err));
+        } else {
+            proceedWithSimulation();
         }
+    }
 
-        #staticImage2Container {
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
+    function proceedWithSimulation() {
+        if (currentWordAudio) {
+            currentWordAudio.pause();
+            currentWordAudio.currentTime = 0;
         }
-
-        #moveGifButton {
-            position: absolute;
-            top: 20px;
-            left: 250px;
-            width: 3mm;
-            height: 3mm;
-            background-color: white;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            display: none;
-        }
-
-        #loadingIndicator {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 20px;
-            border-radius: 5px;
-            z-index: 1000;
-            text-align: center;
-        }
-
-        #progressBar {
-            width: 200px;
-            height: 20px;
-            background-color: #f0f0f0;
-            border-radius: 10px;
-            margin: 10px 0;
-            overflow: hidden;
-        }
-
-        #progressFill {
-            width: 0%;
-            height: 100%;
-            background-color: #4CAF50;
-            transition: width 0.3s ease-in-out;
-        }
-
-        #progressPercentage {
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-    <div class="content">
-        <div class="mode-circles">
-            <div id="repeatMode" class="mode-circle" title="Repeat Mode"></div>
-            <div id="testMode" class="mode-circle" title="Test Mode"></div>
-        </div>
-        <div class="word">
-            <span></span>
-            <span>Lesson 3</span>
-            <span></span>
-        </div>
-        <div id="customInputContainer">
-            <button id="tickButton"><img src="tickmark.png" alt="Tick"></button>
-            <input type="text" id="customInput" maxlength="100">
-        </div>
-        <button id="lessonsButton">Lessons</button>
-        <button id="moveGifButton"></button>
-        <div id="imageContainer">
-            <img id="movingImage" src="Panda_T.gif" alt="Moving GIF" style="display: none;">
-            <img id="staticImage1" src="Panda_Static.png" alt="Static Image 1">
-        </div>
-        <div id="staticImage2Container">
-            <img id="staticImage2" src="Panda_Static2.png" alt="Static Image 2">
-        </div>
-        <div id="buttons-container">
-            <button id="goButton">Go</button>
-            <button id="previousButton" style="display: none;">Previous</button>
-            <button id="nextButton" style="display: none;">Next</button>
-            <button id="customButton" style="display: none;">Custom</button>
-        </div>
-        <button id="toggleCButton">C</button>
-        <button id="toggleFCButton">D</button>
-    </div>
-    <div id="loadingIndicator" style="display: none;">
-        <div>Loading...</div>
-        <div id="progressBar">
-            <div id="progressFill"></div>
-        </div>
-        <div id="progressPercentage">0%</div>
-    </div>
-    <script>
-        const wordElement = document.querySelector('.word');
-        const goButton = document.getElementById('goButton');
-        const nextButton = document.getElementById('nextButton');
-        const previousButton = document.getElementById('previousButton');
-        const customButton = document.getElementById('customButton');
-        const customInputContainer = document.getElementById('customInputContainer');
-        const customInput = document.getElementById('customInput');
-        const tickButton = document.getElementById('tickButton');
-        const lessonsButton = document.getElementById('lessonsButton');
-        const toggleCButton = document.getElementById('toggleCButton');
-        const toggleFCButton = document.getElementById('toggleFCButton');
-        const repeatModeCircle = document.getElementById('repeatMode');
-        const testModeCircle = document.getElementById('testMode');
-        const modeCirclesContainer = document.querySelector('.mode-circles');
-        const imageContainer = document.getElementById('imageContainer');
-        const movingImage = document.getElementById('movingImage');
-        const staticImage1 = document.getElementById('staticImage1');
-        const staticImage2Container = document.getElementById('staticImage2Container');
-        const moveGifButton = document.getElementById('moveGifButton');
-
-        const GIF_SPEED_CM_PER_SECOND = 3.5;
-        const PIXELS_PER_CM = 37.7952755906;
-        const GIF_SPEED_PIXELS_PER_SECOND = GIF_SPEED_CM_PER_SECOND * PIXELS_PER_CM;
         
-        const STANDARD_DELAY = 2000;
-        const SPECIAL_LETTER_DELAY = 200;
-        const SPECIAL_LETTERS = ['c', 't', 'k', 'g', 'p', 'b', 'd', 'q'];
-
-        const wordsAndAudio2 = {
-            'fan': 'a.mp3',
-            'ham': 'b.mp3',
-            'man': 'man.mp3',
-            'non': 'non.mp3',
-            'Sam': 'sam.mp3',
-            'sun': 'fat.mp3',
-            'fox': 'rat.mp3',
-            'non': 'sa.mp3',
-            'fun': 'em.mp3',
-            'run': 'mo.mp3',
-            'van': 'van.mp3',
-            'elf': 'fan.mp3',
-            'wax': 'dog.mp3',
-            'zen': 'zen.mp3',
-            'ram': 'ram.mp3',
-            'van': 'Aa.mp3',
-            'far': 'far.mp3',
-            'hex': 'hex.mp3',
-            'hen': 'hen.mp3',
-            'wow': 'Aa.mp3',
-            'arm': 'Oo.mp3',
-            'max': 'man.mp3',
-            'now': 'hat.mp3',
-            'vow': 'ho.mp3',
-            'fix': 'fix.mp3',
-            'fur': 'fur.mp3',
-            'nor': 'nor.mp3'
+        currentWordAudio = audio;
+        isAudioPlaying = true;
+        isSimulationComplete = false;
+        
+        audio.play();
+        audio.onended = () => {
+            isAudioPlaying = false;
+            isSimulationComplete = true;
+            currentWordAudio = null;
         };
         
-        const imageSets = [
-            {
-                movingImage: "Panda_T.gif",
-                staticImage1: "Panda_Static1.png",
-                staticImage2: "Panda_Static1.png",
-                movementSound: "walking.mp3"
-            },
-            {
-                movingImage: "Ali_T.gif",
-                staticImage1: "Aligator_Static1.png",
-                staticImage2: "Aligator_Static1.png",
-                movementSound: "walking.mp3"
-            },
-            {
-                movingImage: "Tiger_T.gif",
-                staticImage1: "Tiger_Static1.png",
-                staticImage2: "Tiger_Static1.png",
-                movementSound: "walking.mp3"
-            },
-            {
-                movingImage: "Lion_T.gif",
-                staticImage1: "Lion_Static1.png",
-                staticImage2: "Lion_Static1.png",
-                movementSound: "walking.mp3"
-            },
-            {
-                movingImage: "Gorilla_T.gif",
-                staticImage1: "Gorilla_Static1.png",
-                staticImage2: "Gorilla_Static1.png",
-                movementSound: "walking.mp3"
-            },
-            {
-                movingImage: "Tiger_T.gif",
-                staticImage1: "Tiger_Static1.png",
-                staticImage2: "Tiger_Static1.png",
-                movementSound: "walking.mp3"
-            },
-            {
-                movingImage: "Wb_T.gif",
-                staticImage1: "Wb_Static1.png",
-                staticImage2: "Wb_Static1.png",
-                movementSound: "walking.mp3"
-            },
-            {
-                movingImage: "Ost_T.gif",
-                staticImage1: "Ost_Static1.png",
-                staticImage2: "Ost_Static1.png",
-                movementSound: "walking.mp3"
-            },
-            {
-                movingImage: "Racoon_T.gif",
-                staticImage1: "Racoon_Static1.png",
-                staticImage2: "Racoon_Static1.png",
-                movementSound: "walking.mp3"
-            },
-            {
-                movingImage: "Rhino_T.gif",
-                staticImage1: "Rhino_Static1.png",
-                staticImage2: "Rhino_Static1.png",
-                movementSound: "walking.mp3"
-            },
-            {
-                movingImage: "Bear_T.gif",
-                staticImage1: "Bear_Static1.png",
-                staticImage2: "Bear_Static1.png",
-                movementSound: "walking.mp3"
-            }
-        ];
-
-        const words = Object.keys(wordsAndAudio2);
-
-        let dragging = false;
-        let highlightedLetter = null;
-        let colorChangeEnabled = true;
-        let colorHighlightEnabled = true;
-        let currentWordIndex = 0;
-        let currentMode = 'test';
-        let isCustomWord = false;
-        let currentAudio = null;
-        let colorChangeInterval = null;
-        let isRepeatMode = false;
-        let isMode3AudioEnabled = true;
-        let isFirstLetterListenerActive = false;
-        let firstLetterTouchHandler = null;
-        let useMode3Audio = false;
-        let currentImageSetIndex;
-        let isImageMovementComplete = false;
-        let currentMovementTimeout = null;
-        let isImageMoving = false;
-        let movementAudio = null;
-        let totalAssets = 0;
-        let loadedAssets = 0;
-
-        const letterCombos = [
-           { combo: 'sh', color: '#fbd9d3' },
-           { combo: 'th', color: 'green' },
-           { combo: 'ch', color: 'blue' },
-           { combo: 'oul', color: 'purple' },
-           { combo: 'oa', color: 'orange' },
-           { combo: 'ea', color: 'brown' },
-           { combo: 'ee', color: 'pink' },
-           { combo: 'ou', color: '#006a6a' },
-           { combo: 'igh', color: 'magenta' },
-           { combo: 'wh', color: '#FFAE42' }
-        ];
-
-        function updateProgressBar() {
-            const percentage = Math.round((loadedAssets / totalAssets) * 100);
-            document.getElementById('progressFill').style.width = `${percentage}%`;
-            document.getElementById('progressPercentage').textContent = `${percentage}%`;
-        }
-
-        function preloadAudio() {
-            const audioFiles = [
-                'OtherLessons_Mode2Audio1.mp3',
-                'Lesson1_Mode3.mp3',
-                'yay.mpeg',
-                'walking.mp3',
-                ...Object.values(wordsAndAudio2)
-            ];
-
-            totalAssets += audioFiles.length;
-
-            const audioPromises = audioFiles.map(file => {
-                return new Promise((resolve, reject) => {
-                    const audio = new Audio();
-                    audio.addEventListener('canplaythrough', () => {
-                        loadedAssets++;
-                        updateProgressBar();
-                        resolve();
-                    }, { once: true });
-                    audio.addEventListener('error', reject);
-                    audio.src = file;
-                    audio.preload = 'auto';
-                });
-            });
-
-            return Promise.all(audioPromises);
-        }
-
-        function preloadImages() {
-            const imageFiles = imageSets.flatMap(set => [
-                set.movingImage,
-                set.staticImage1,
-                set.staticImage2
-            ]);
-
-            totalAssets += imageFiles.length;
-
-            const imagePromises = imageFiles.map(file => {
-                return new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        loadedAssets++;
-                        updateProgressBar();
-                        resolve();
-                    };
-                    img.onerror = reject;
-                    img.src = file;
-                });
-            });
-
-            return Promise.all(imagePromises);
-        }
-
-        function showLoadingIndicator() {
-            document.getElementById('loadingIndicator').style.display = 'block';
-        }
-
-        function hideLoadingIndicator() {
-            document.getElementById('loadingIndicator').style.display = 'none';
-        }
-
-        function initializeApp() {
-            showLoadingIndicator();
-            totalAssets = 0;
-            loadedAssets = 0;
-
-            Promise.all([
-                preloadAudio(),
-                preloadImages()
-            ]).then(() => {
-                hideLoadingIndicator();
-                console.log('All assets preloaded');
-                setupInitialState();
-            }).catch(error => {
-                console.error('Error preloading assets:', error);
-                hideLoadingIndicator();
-                setupInitialState();
-            });
-        }
-
-        function setupInitialState() {
-            goButton.style.display = 'inline-block';
-            previousButton.style.display = 'none';
-            nextButton.style.display = 'none';
-            customButton.style.display = 'none';
-            toggleCButton.style.display = 'none';
-            toggleFCButton.style.display = 'none';
-            modeCirclesContainer.style.display = 'none';
-            imageContainer.style.display = 'none';
-            staticImage2Container.style.display = 'none';
-            moveGifButton.style.display = 'none';
-            initializeImageSets();
-        }
-
-        function initializeImageSets() {
-            currentImageSetIndex = Math.floor(Math.random() * imageSets.length);
-            updateImages();
-        }
-
-        function updateImages() {
-            const currentSet = imageSets[currentImageSetIndex];
-            movingImage.src = currentSet.movingImage;
-            staticImage1.src = currentSet.staticImage1;
-            document.getElementById('staticImage2').src = currentSet.staticImage2;
-        }
-
-        function nextImageSet() {
-            currentImageSetIndex = (currentImageSetIndex + 1) % imageSets.length;
-            updateImages();
-        }
-
-        function addWordEventListeners() {
-            wordElement.addEventListener('mousedown', handleMouseDown);
-            document.body.addEventListener('mousemove', handleMouseMove);
-            document.body.addEventListener('mouseup', handleMouseUp);
-            wordElement.addEventListener('touchstart', handleTouchStart);
-            document.body.addEventListener('touchmove', handleTouchMove);
-            document.body.addEventListener('touchend', handleTouchEnd);
-            document.addEventListener('keydown', handleKeyPress);
-        }
-
-        function removeWordEventListeners() {
-            wordElement.removeEventListener('mousedown', handleMouseDown);
-            document.body.removeEventListener('mousemove', handleMouseMove);
-            document.body.removeEventListener('mouseup', handleMouseUp);
-            wordElement.removeEventListener('touchstart', handleTouchStart);
-            document.body.removeEventListener('touchmove', handleTouchMove);
-            document.body.removeEventListener('touchend', handleTouchEnd);
-        }
-
-        goButton.addEventListener('click', handleGo);
-        nextButton.addEventListener('click', handleNext);
-        previousButton.addEventListener('click', handlePrevious);
-        customButton.addEventListener('click', handleCustom);
-        tickButton.addEventListener('click', handleTick);
-        lessonsButton.addEventListener('click', handleLessons);
-        toggleCButton.addEventListener('click', handleToggleC);
-        toggleFCButton.addEventListener('click', handleToggleFC);
-        repeatModeCircle.addEventListener('click', () => switchMode('repeat'));
-        testModeCircle.addEventListener('click', () => switchMode('test'));
-        moveGifButton.addEventListener('click', moveImageToRightEdge);
-
-        function handleKeyPress(event) {
-            if (event.key === 'Tab' || event.key === '+' || event.key === 'ArrowLeft') {
-                event.preventDefault();
-                moveImageToRightEdge();
-            }
-        }
-
-        function handleMouseDown(event) {
-            if ((currentMode === 'test' || currentMode === 'custom') && event.buttons === 1) {
-                dragging = true;
-                handleMouseMove(event);
-            }
-        }
-
-        function handleMouseMove(event) {
-            if ((currentMode === 'test' || currentMode === 'custom') && dragging && colorChangeEnabled) {
-                const x = event.clientX;
-                const y = event.clientY;
-                updateLetterColors(x, y);
-            }
-        }
-
-        function handleMouseUp() {
-            if (currentMode === 'test' || currentMode === 'custom') {
-                dragging = false;
-                highlightLetterCombos();
-            }
-        }
-
-        function handleTouchStart(event) {
-            if (currentMode === 'test' || currentMode === 'custom') {
-                dragging = true;
-                handleTouchMove(event);
-            }
-        }
-
-        function handleTouchMove(event) {
-            if ((currentMode === 'test' || currentMode === 'custom') && dragging && colorChangeEnabled) {
-                const x = event.touches[0].clientX;
-                const y = event.touches[0].clientY;
-                updateLetterColors(x, y);
-            }
-        }
-
-        function handleTouchEnd() {
-            if (currentMode === 'test' || currentMode === 'custom') {
-                dragging = false;
-                highlightLetterCombos();
-            }
-        }
-
-        function updateLetterColors(x, y) {
-            if (!colorChangeEnabled) return;
-
-            const letters = Array.from(wordElement.querySelectorAll('span'));
-            letters.forEach((letter, index) => {
-                const rect = letter.getBoundingClientRect();
-                const midX = (rect.left + rect.right) / 2;
-                const midY = (rect.top + rect.bottom) / 2;
-                const diffX = Math.abs(midX - x);
-                const diffY = Math.abs(midY - y);
-                const shouldChangeColor = diffX < 50 && diffY < 120;
-
-                if (shouldChangeColor) {
-                    const comboFound = highlightCombo(index, '#bf6347');
-                    if (!comboFound) {
-                        letter.style.color = '#bf6347';
-                    }
-                }
-            });
-        }
-
-        function highlightCombo(startIndex, color) {
-            const letters = Array.from(wordElement.querySelectorAll('span'));
-            for (const { combo } of letterCombos) {
-                for (let i = Math.max(0, startIndex - combo.length + 1); i <= startIndex; i++) {
-                    if (i + combo.length <= letters.length) {
-                        const comboSpans = letters.slice(i, i + combo.length);
-                        const comboText = comboSpans.map(span => span.textContent.toLowerCase()).join('');
-                        
-                        if (comboText === combo.toLowerCase() && comboSpans.every((span, index, array) => 
-                            index === 0 || span.previousSibling === array[index - 1])) {
-                            comboSpans.forEach(span => span.style.color = color);
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        }
-
-        function highlightLetterCombos() {
-            const letters = Array.from(wordElement.querySelectorAll('span'));
-            letters.forEach(letter => letter.style.color = 'black');
-
-            if (colorHighlightEnabled) {
-                for (let i = 0; i < letters.length; i++) {
-                    for (const { combo, color } of letterCombos) {
-                        if (i + combo.length <= letters.length) {
-                            const comboSpans = letters.slice(i, i + combo.length);
-                            const comboText = comboSpans.map(span => span.textContent.toLowerCase()).join('');
-                            
-                            if (comboText === combo.toLowerCase() && comboSpans.every((span, index, array) => 
-                                index === 0 || span.previousSibling === array[index - 1])) {
-                                comboSpans.forEach(span => span.style.color = color);
-                                i += combo.length - 1;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        function handleGo() {
-            currentWordIndex = 0;
-            isCustomWord = false;
-            displayWord(words[currentWordIndex]);
-            goButton.style.display = 'none';
-            previousButton.style.display = 'none';
-            nextButton.style.display = 'inline-block';
-            customButton.style.display = 'inline-block';
-            toggleCButton.style.display = 'inline-block';
-            toggleFCButton.style.display = 'inline-block';
-            modeCirclesContainer.style.display = 'flex';
-            moveGifButton.style.display = 'block';
-            enableModeCircles();
-            switchMode('test');
-            showImage();
-        }   
-
-        function handleNext() {
-            currentWordIndex = (currentWordIndex + 1) % words.length;
-            isCustomWord = false;
-            displayWord(words[currentWordIndex]);
-            previousButton.style.display = 'inline-block';
-            customInputContainer.style.display = 'none';
-            customInput.value = '';
-            enableModeCircles();
-            switchMode('test');
-            resetImagePosition();
-            nextImageSet();
-        }
-
-        function handlePrevious() {
-            currentWordIndex = (currentWordIndex - 1 + words.length) % words.length;
-            isCustomWord = false;
-            displayWord(words[currentWordIndex]);
-            
-            if (currentWordIndex === 0) {
-                previousButton.style.display = 'none';
-            }
-            
-            customInputContainer.style.display = 'none';
-            customInput.value = '';
-            enableModeCircles();
-            switchMode('test');
-            resetImagePosition();
-        }
-        
-        function enableCustomWordColorChange() {
-            colorChangeEnabled = true;
-            toggleCButton.classList.remove('greyed');
-            addWordEventListeners();
-            currentMode = 'custom';
-        }
-
-        function handleCustom() {
-            stopCurrentMode();
-            wordElement.innerHTML = '';
-            customInputContainer.style.display = 'flex';
-            customInput.focus();
-            disableModeCircles();
-            repeatModeCircle.classList.remove('active');
-            testModeCircle.classList.remove('active');
-            colorChangeEnabled = true;
-            toggleCButton.classList.remove('greyed');
-            currentMode = 'custom';
-            isCustomWord = true;
-            removeWordEventListeners();
-        }
-
-        function handleTick() {
-            const customText = customInput.value.trim();
-            if (customText.length > 0) {
-                isCustomWord = true;
-                displayWord(customText);
-                customInputContainer.style.display = 'none';
-                customInput.value = '';
-                resetImagePosition();
-                enableCustomWordColorChange();
-            } else {
-                customInputContainer.style.display = 'none';
-            }
-            toggleCButton.style.display = 'inline-block';
-            toggleFCButton.style.display = 'inline-block';
-            highlightLetterCombos();
-        }
-
-        function handleLessons() {
-            window.location.href = 'lessons.html';
-        }
-
-        function handleToggleC() {
-            if (currentMode === 'test' || isCustomWord) {
-                colorChangeEnabled = !colorChangeEnabled;
-                toggleCButton.classList.toggle('greyed', !colorChangeEnabled);
-            }
-        }
-
-        function handleToggleFC() {
-            colorHighlightEnabled = !colorHighlightEnabled;
-            toggleFCButton.classList.toggle('greyed', !colorHighlightEnabled);
-            highlightLetterCombos();
-        }
-
-        function displayWord(word) {
-            wordElement.innerHTML = '';
-            for (let char of word) {
-                if (char === ' ') {
-                    wordElement.appendChild(document.createTextNode(' '));
-                } else {
-                    const span = document.createElement('span');
-                    span.textContent = char;
-                    span.style.fontFamily = 'Lexend, sans-serif';
-                    wordElement.appendChild(span);
-                }
-            }
-            highlightLetterCombos();
-        }
-
-        function switchMode(mode) {
-            if (isCustomWord) return;
-
-            stopCurrentMode();
-
-            currentMode = mode;
-            repeatModeCircle.classList.remove('active');
-            testModeCircle.classList.remove('active');
-
-            isRepeatMode = (mode === 'repeat');
-
-            removeWordEventListeners();
-            removeFirstLetterListener();
-
-            highlightLetterCombos();
-
-            switch (mode) {
-                case 'repeat':
-                    repeatModeCircle.classList.add('active');
-                    playAudioAndSimulateColorChange('repeat');
-                    break;
-                case 'test':
-                    testModeCircle.classList.add('active');
-                    setupTestMode();
-                    break;
-            }
-        }
-
-        function playAudioAndSimulateColorChange(mode) {
-            const word = wordElement.textContent;
-            const letters = Array.from(wordElement.querySelectorAll('span'));
-            
-            letters.forEach(letter => letter.style.color = 'black');
-            highlightLetterCombos();
-
-            if (mode === 'repeat') {
-                const audio1 = new Audio('OtherLessons_Mode2Audio1.mp3');
-                const audio2 = new Audio(wordsAndAudio2[word]);
-
-                currentAudio = audio1;
-
-                audio1.onended = () => {
-                    setupFirstLetterTouchListener(letters, audio2);
-                };
-
-                audio1.play();
-                colorChangeEnabled = false;
-            }
-            
-            toggleCButton.classList.toggle('greyed', !colorChangeEnabled);
-        }
-
-        function setupTestMode() {
-            if (isMode3AudioEnabled && useMode3Audio) {
-                const audio = new Audio(`Lesson1_Mode3.mp3`);
-                currentAudio = audio;
-                audio.play();
-            }
-            colorChangeEnabled = true;
-            toggleCButton.classList.remove('greyed');
-            addWordEventListeners();
-        }
-
-        function removeFirstLetterListener() {
-            if (isFirstLetterListenerActive) {
-                const firstLetter = wordElement.querySelector('span');
-                firstLetter.removeEventListener('touchstart', firstLetterTouchHandler);
-                firstLetter.removeEventListener('mousedown', firstLetterTouchHandler);
-                isFirstLetterListenerActive = false;
-            }
-        }
-
-        function setupFirstLetterTouchListener(letters, audio2) {
-            removeFirstLetterListener();
-
-            const firstLetter = letters[0];
-            firstLetterTouchHandler = (event) => {
-                event.preventDefault();
-                audio2.play();
-                simulateColorChange(letters);
-                
-                audio2.onended = () => {
-                    setupFirstLetterTouchListener(letters, audio2);
-                };
-            };
-
-            firstLetter.addEventListener('touchstart', firstLetterTouchHandler);
-            firstLetter.addEventListener('mousedown', firstLetterTouchHandler);
-            isFirstLetterListenerActive = true;
-        }
-
-        function simulateColorChange(letters) {
-            let index = 0;
-
-            function changeNextLetter() {
-                if (index < letters.length) {
-                    let delay = STANDARD_DELAY;
-                    let comboLength = 1;
-
-                    for (const { combo, color } of letterCombos) {
-                        if (index + combo.length <= letters.length) {
-                            const comboText = letters.slice(index, index + combo.length)
-                                .map(span => span.textContent.toLowerCase()).join('');
-                            
-                            if (comboText === combo.toLowerCase()) {
-                                for (let i = 0; i < combo.length; i++) {
-                                    letters[index + i].style.color = '#bf6347';
-                                }
-                                comboLength = combo.length;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (comboLength === 1) {
-                        letters[index].style.color = '#bf6347';
-                        const currentLetter = letters[index].textContent.toLowerCase();
-                        if (SPECIAL_LETTERS.includes(currentLetter)) {
-                            delay = SPECIAL_LETTER_DELAY;
-                        }
-                    }
-
-                    index += comboLength;
-
-                    colorChangeInterval = setTimeout(changeNextLetter, delay);
-                } else {
-                    colorChangeInterval = setTimeout(() => {
-                        highlightLetterCombos();
-                    }, 500);
-                }
-            }
-
-            letters.forEach(letter => letter.style.color = 'black');
-            highlightLetterCombos();
-
-            changeNextLetter();
-        }
-
-        function stopCurrentMode() {
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
+        simulateColorChange(letters, () => {
+            isSimulationComplete = true;
+        });
+    }
+
+    function stopSimulation() {
+        if (!isSimulationComplete) {
+            if (currentWordAudio) {
+                currentWordAudio.pause();
+                currentWordAudio.currentTime = 0;
+                isAudioPlaying = false;
+                currentWordAudio = null;
             }
             if (colorChangeInterval) {
                 clearTimeout(colorChangeInterval);
             }
-            highlightLetterCombos();
-        }
-
-        function enableModeCircles() {
-            [repeatModeCircle, testModeCircle].forEach(circle => {
-                circle.classList.remove('disabled');
-                circle.style.pointerEvents = 'auto';
-            });
-        }
-
-        function disableModeCircles() {
-            [repeatModeCircle, testModeCircle].forEach(circle => {
-                circle.classList.add('disabled');
-                circle.style.pointerEvents = 'none';
-            });
-        }
-
-        function showImage() {
-            imageContainer.style.display = 'block';
-            imageContainer.style.left = '0';
-            staticImage2Container.style.display = 'block';
-            positionImagesVertically();
-            updateImages();
-        }
-
-        function positionImagesVertically() {
-            const distanceFromBottom1 = 100;
-            const distanceFromBottom2 = 150;
-            const viewportHeight = window.innerHeight;
-
-            imageContainer.style.top = `${viewportHeight - distanceFromBottom1}px`;
-            imageContainer.style.transform = 'translateY(-50%)';
-
-            staticImage2Container.style.top = `${viewportHeight - distanceFromBottom2}px`;
-            staticImage2Container.style.transform = 'translateY(-50%)';
-        }
-
-        function changeToGif() {
-            staticImage1.style.display = 'none';
-            movingImage.style.display = 'block';
-        }
-
-        function changeToStaticImage1() {
-            movingImage.style.display = 'none';
-            staticImage1.style.display = 'block';
-        }
-
-        function moveImageToRightEdge() {
-            if (isImageMoving) return;
-
-            const screenWidth = window.innerWidth;
-            const staticImage2Width = staticImage2Container.offsetWidth;
-            const targetPosition = screenWidth - staticImage2Width - imageContainer.offsetWidth;
-            moveImageTo(targetPosition);
-        }
-
-        function moveImageTo(targetPosition) {
-            if (isImageMoving) return;
-
-            if (currentMovementTimeout) {
-                clearTimeout(currentMovementTimeout);
-            }
-
-            isImageMoving = true;
-            changeToGif();
-            const currentPosition = parseFloat(imageContainer.style.left) || 0;
-            const distance = targetPosition - currentPosition;
-            const duration = (Math.abs(distance) / GIF_SPEED_PIXELS_PER_SECOND) * 1000;
-            imageContainer.style.transition = `left ${duration}ms linear`;
-            imageContainer.style.left = `${targetPosition}px`;
+            const existingDot = document.querySelector('.moving-dot');
+            if (existingDot) existingDot.remove();
             
-            isImageMovementComplete = false;
-            
-            const currentSet = imageSets[currentImageSetIndex];
-            movementAudio = new Audio(currentSet.movementSound);
-            movementAudio.loop = true;
-            movementAudio.play();
-            
-            currentMovementTimeout = setTimeout(() => {
-                changeToStaticImage1();
-                isImageMovementComplete = true;
-                isImageMoving = false;
-                
-                if (movementAudio) {
-                    movementAudio.pause();
-                    movementAudio.currentTime = 0;
+            resetColors(letters);
+            isSimulationComplete = false;
+        }
+    }
+
+    firstLetterTouchHandler = {
+        start: startSimulation,
+        stop: stopSimulation
+    };
+
+    firstLetter.addEventListener('touchstart', startSimulation);
+    firstLetter.addEventListener('mousedown', startSimulation);
+    document.addEventListener('touchend', stopSimulation);
+    document.addEventListener('mouseup', stopSimulation);
+
+    isFirstLetterListenerActive = true;
+}
+
+			function simulateColorChange(letters, onComplete) {
+    resetColors(letters);
+    let index = 0;
+    const dot = createDot();
+    let hasPassedCenter = false;
+
+    function changeNextLetter() {
+        if (!dot.isConnected) return;
+
+        if (index < letters.length) {
+            let delay = STANDARD_DELAY;
+            let comboLength = 1;
+
+            for (const { combo, color } of letterCombos) {
+                if (index + combo.length <= letters.length) {
+                    const comboText = letters.slice(index, index + combo.length)
+                        .map(span => span.textContent.toLowerCase()).join('');
+                    
+                    if (comboText === combo.toLowerCase()) {
+                        for (let i = 0; i < combo.length; i++) {
+                            letters[index + i].style.color = '#bf6347';
+                        }
+                        comboLength = combo.length;
+                        break;
+                    }
                 }
-                
-                playSuccessAudio();
-                currentMovementTimeout = null;
-            }, duration);
+            }
+
+            if (comboLength === 1) {
+                letters[index].style.color = '#bf6347';
+                const currentLetter = letters[index].textContent.toLowerCase();
+                if (SPECIAL_LETTERS.includes(currentLetter)) {
+                    delay = SPECIAL_LETTER_DELAY;
+                }
+            }
+
+            const startLetter = letters[index];
+            const endLetter = letters[Math.min(index + comboLength - 1, letters.length - 1)];
+            
+            if (index + comboLength >= letters.length) {
+                // Make sure to schedule dot removal even if at the end position
+                colorChangeInterval = setTimeout(() => {
+                    resetColors(letters);
+                    if (dot && dot.isConnected) {
+                        dot.remove();
+                    }
+                    if (onComplete) onComplete();
+                }, delay);
+            }
+
+            moveDot(dot, startLetter, endLetter, delay);
+
+            index += comboLength;
+
+            if (index < letters.length) {
+                colorChangeInterval = setTimeout(changeNextLetter, delay);
+            }
         }
+    }
+
+    changeNextLetter();
+}
+
+function handleThreeCompletions() {
+    console.log('Starting handleThreeCompletions');
+    completionCount = 0;
+    
+    const imageContainer = document.getElementById('imageContainer');
+    const staticImage2Container = document.getElementById('staticImage2Container');
+    const currentLeft = parseFloat(imageContainer.style.left) || 0;
+    
+    const staticImage2Left = staticImage2Container.getBoundingClientRect().left;
+    const movingImageWidth = imageContainer.offsetWidth;
+    const maxPosition = staticImage2Left - movingImageWidth;
+    
+    const midpoint = Math.min(
+        currentLeft + ((staticImage2Left - currentLeft) / 2),
+        maxPosition
+    );
+    
+    const distance = Math.abs(midpoint - currentLeft);
+    const duration = (distance / GIF_SPEED_PIXELS_PER_SECOND) * 1000;
+
+    console.log('Checking AudioContext state:', globalAudioContext?.state);
+    if (!globalAudioContext || globalAudioContext.state === 'suspended') {
+        console.log('AudioContext not ready');
+        return;
+    }
+
+    const loadAndPlayAudio = async (url, options = {}) => {
+        try {
+            console.log('Fetching audio from:', url);
+            const response = await fetch(url);
+            console.log('Audio fetch complete, decoding...');
+            const arrayBuffer = await response.arrayBuffer();
+            console.log('Creating audio buffer...');
+            const audioBuffer = await globalAudioContext.decodeAudioData(arrayBuffer);
+            console.log('Audio buffer created, setting up source...');
+            const source = globalAudioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(globalAudioContext.destination);
+            if (options.loop) {
+                source.loop = true;
+                console.log('Loop enabled for audio');
+            }
+            console.log('Starting audio playback');
+            source.start(0);
+            return source;
+        } catch (err) {
+            console.log('Audio playback failed:', err);
+            console.log('Error details:', {
+                name: err.name,
+                message: err.message,
+                stack: err.stack
+            });
+            return null;
+        }
+    };
+
+    console.log('Starting image movement');
+    // Move the image
+    moveImageTo(midpoint);
+
+    console.log('Attempting to play movement sound');
+    // Try to play movement sound
+    let movementSource = null;
+    loadAndPlayAudio(imageSets[currentImageSetIndex].movementSound, { loop: true })
+        .then(source => {
+            movementSource = source;
+            console.log('Movement sound source created:', !!source);
+        });
+    
+    // Handle the sequence after movement
+    setTimeout(async () => {
+        console.log('Movement timeout triggered');
+        if (sequenceInProgress) {
+            console.log('Sequence still in progress');
+            // Stop movement sound
+            if (movementSource) {
+                console.log('Stopping movement sound');
+                movementSource.stop();
+            }
+            
+            console.log('Attempting to play success sound');
+            // Try to play success sound
+            await loadAndPlayAudio('https://static.wixstatic.com/mp3/d6e04b_6f20d2eb70234bd88522ae219259134e.mp3');
+            
+            console.log('Switching to test mode');
+            // Switch mode
+            switchMode('test');
+            
+            // Try to play test mode audio after delay
+            setTimeout(async () => {
+                console.log('Test mode audio timeout triggered');
+                if (sequenceInProgress && !isAudioPlaying) {
+                    console.log('Attempting to play test mode audio');
+                    const source = await loadAndPlayAudio('https://static.wixstatic.com/mp3/d6e04b_dbe5d74b813641259acf1f37426661bc.mp3');
+                    if (source) {
+                        console.log('Test mode audio source created successfully');
+                        isAudioPlaying = true;
+                        source.onended = () => {
+                            console.log('Test mode audio ended');
+                            isAudioPlaying = false;
+                        };
+                    }
+                } else {
+                    console.log('Skipping test mode audio - conditions not met:', {
+                        sequenceInProgress,
+                        isAudioPlaying
+                    });
+                }
+            }, 3000);
+        } else {
+            console.log('Sequence no longer in progress');
+        }
+    }, duration);
+}
+
+	function resetColors(letters) {
+		letters.forEach(letter => letter.style.color = 'black');
+		highlightLetterCombos();
+	}
+
+function stopCurrentMode() {
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+    }
+    if (currentWordAudio) {
+        currentWordAudio.pause();
+        currentWordAudio.currentTime = 0;
+    }
+    if (colorChangeInterval) {
+        clearTimeout(colorChangeInterval);
+    }
+    if (audioGuideTimeout) {
+        clearTimeout(audioGuideTimeout);
+    }
+    
+    const existingDot = document.querySelector('.moving-dot');
+    if (existingDot) {
+        existingDot.remove();
+    }
+    
+    isAudioPlaying = false;
+    isAudioGuideActive = false;
+    highlightLetterCombos();
+    removeFirstLetterListener();
+
+    if (currentMode === 'repeat') {
+        setupRepeatMode();
+    }
+}
+
+			function enableModeCircles() {
+				[repeatModeCircle, testModeCircle].forEach(circle => {
+					circle.classList.remove('disabled');
+					circle.style.pointerEvents = 'auto';
+				});
+			}
+
+			function disableModeCircles() {
+				[repeatModeCircle, testModeCircle].forEach(circle => {
+					circle.classList.add('disabled');
+					circle.style.pointerEvents = 'none';
+				});
+			}
+
+			function showImage() {
+				imageContainer.style.display = 'block';
+				imageContainer.style.left = '0';
+				staticImage2Container.style.display = 'block';
+				positionImagesVertically();
+				updateImages();
+			}
+
+			function positionImagesVertically() {
+				const distanceFromBottom1 = 100;
+				const distanceFromBottom2 = 150;
+				const viewportHeight = window.innerHeight;
+
+				imageContainer.style.top = `${viewportHeight - viewportHeight*0.16}px`;
+				imageContainer.style.transform = 'translateY(-65%)';
+
+				staticImage2Container.style.top = `${viewportHeight - (viewportHeight*0.16)}px`;
+				staticImage2Container.style.transform = 'translateY(-65%)';
+			}
+
+			function changeToGif() {
+				staticImage1.style.display = 'none';
+				movingImage.style.display = 'block';
+			}
+
+			function changeToStaticImage1() {
+				movingImage.style.display = 'none';
+				staticImage1.style.display = 'block';
+			}
+
+			function moveImageToRightEdge() {
+    if (isImageMoving) return;
+
+    // Initialize or resume AudioContext during button click
+    if (!globalAudioContext) {
+        console.log('Creating new AudioContext during button click');
+        globalAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    
+    console.log('Current AudioContext state:', globalAudioContext.state);
+    globalAudioContext.resume().then(() => {
+        console.log('AudioContext resumed successfully:', globalAudioContext.state);
+        const screenWidth = window.innerWidth;
+        const staticImage2Width = staticImage2Container.offsetWidth;
+        const targetPosition = screenWidth - staticImage2Width - imageContainer.offsetWidth;
+        moveImageTo(targetPosition, true); // Pass true to indicate manual movement
+    }).catch(err => console.log('AudioContext resume failed:', err));
+}
+
+			function moveImageTo(targetPosition, isManualMove = false) {
+    if (isImageMoving) return;
+    console.log('Starting moveImageTo, manual move:', isManualMove);
+
+    if (currentMovementTimeout) {
+        clearTimeout(currentMovementTimeout);
+    }
+
+    if (currentMovementSource) {
+        console.log('Stopping previous movement sound');
+        currentMovementSource.stop();
+        currentMovementSource = null;
+    }
+
+    isImageMoving = true;
+    sequenceInProgress = true;
+    changeToGif();
+    
+    const currentPosition = parseFloat(imageContainer.style.left) || 0;
+    const distance = targetPosition - currentPosition;
+    const duration = (Math.abs(distance) / GIF_SPEED_PIXELS_PER_SECOND) * 1000;
+    
+    console.log('Movement duration:', duration);
+    imageContainer.style.transition = `left ${duration}ms linear`;
+    imageContainer.style.left = `${targetPosition}px`;
+    
+    isImageMovementComplete = false;
+
+    // Define loadAndPlayAudio outside so it's available throughout the function
+    const loadAndPlayAudio = async (url, options = {}) => {
+        try {
+            console.log('Fetching audio from:', url);
+            const response = await fetch(url);
+            console.log('Audio fetch complete, decoding...');
+            const arrayBuffer = await response.arrayBuffer();
+            console.log('Creating audio buffer...');
+            const audioBuffer = await globalAudioContext.decodeAudioData(arrayBuffer);
+            console.log('Audio buffer created, setting up source...');
+            const source = globalAudioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(globalAudioContext.destination);
+            if (options.loop) {
+                source.loop = true;
+                console.log('Loop enabled for audio');
+            }
+            console.log('Starting audio playback');
+            source.start(0);
+            return source;
+        } catch (err) {
+            console.log('Audio playback failed:', err);
+            console.log('Error details:', {
+                name: err.name,
+                message: err.message,
+                stack: err.stack
+            });
+            return null;
+        }
+    };
+
+    // Only proceed with audio if we have a valid AudioContext
+    if (globalAudioContext && globalAudioContext.state === 'running') {
+        console.log('Starting audio sequence');
         
-        function playSuccessAudio() {
-            if (isImageMovementComplete) {
-                const successAudio = new Audio('yay.mpeg');
-                successAudio.play();
-            }
-        }
-
-        function resetImagePosition() {
-            if (currentMovementTimeout) {
-                clearTimeout(currentMovementTimeout);
-                currentMovementTimeout = null;
-            }
-
-            if (movementAudio) {
-                movementAudio.pause();
-                movementAudio.currentTime = 0;
-            }
-
-            isImageMovementComplete = false;
+        // Play movement sound
+        console.log('Attempting to play movement sound');
+        loadAndPlayAudio(imageSets[currentImageSetIndex].movementSound, { loop: true })
+            .then(source => {
+                currentMovementSource = source;
+                console.log('Movement sound source created:', !!source);
+            });
+    } else {
+        console.log('AudioContext not ready:', globalAudioContext?.state);
+    }
+    
+    currentMovementTimeout = setTimeout(() => {
+        console.log('Movement timeout triggered');
+        if (sequenceInProgress) {
+            changeToStaticImage1();
+            isImageMovementComplete = true;
             isImageMoving = false;
             
-            imageContainer.style.transition = 'none';
-            imageContainer.style.left = '0';
-            changeToStaticImage1();
-            setTimeout(() => {
-                imageContainer.style.transition = 'left 1s linear';
-            }, 50);
+            if (currentMovementSource) {
+                console.log('Stopping movement sound');
+                currentMovementSource.stop();
+                currentMovementSource = null;
+            }
+            
+            if (globalAudioContext && globalAudioContext.state === 'running') {
+                // Play success sound
+                console.log('Attempting to play success sound');
+                loadAndPlayAudio('https://static.wixstatic.com/mp3/d6e04b_6f20d2eb70234bd88522ae219259134e.mp3')
+                    .then(source => {
+                        if (source) {
+                            console.log('Success sound playing');
+                        }
+                    });
+            }
         }
+        currentMovementTimeout = null;
+    }, duration);
+}
+			
+			function playSuccessAudio() {
+				if (isImageMovementComplete) {
+					const successAudio = new Audio('https://static.wixstatic.com/mp3/d6e04b_6f20d2eb70234bd88522ae219259134e.mp3');
+					successAudio.play();
+				}
+			}
 
-        function toggleMode3Audio() {
-            isMode3AudioEnabled = !isMode3AudioEnabled;
+			function resetImagePosition() {
+				if (currentMovementTimeout) {
+					clearTimeout(currentMovementTimeout);
+					currentMovementTimeout = null;
+				}
+
+				if (movementAudio) {
+					movementAudio.pause();
+					movementAudio.currentTime = 0;
+				}
+
+				isImageMovementComplete = false;
+				isImageMoving = false;
+				
+				imageContainer.style.transition = 'none';
+				imageContainer.style.left = '0';
+				changeToStaticImage1();
+				setTimeout(() => {
+					imageContainer.style.transition = 'left 1s linear';
+				}, 50);
+			}
+
+			function toggleMode3Audio() {
+				isMode3AudioEnabled = !isMode3AudioEnabled;
+			}
+			
+			function createDot() {
+    // Remove any existing dots first
+    const existingDot = document.querySelector('.moving-dot');
+    if (existingDot) existingDot.remove();
+    
+    const dot = document.createElement('div');
+    dot.className = 'moving-dot';
+    document.body.appendChild(dot);
+    return dot;
+}
+
+function moveDot(dot, startElement, endElement, duration) {
+    const startRect = startElement.getBoundingClientRect();
+    const endRect = endElement.getBoundingClientRect();
+    
+    // Position dot 120 units above the center
+    const dotY = startRect.top + startRect.height/2 + 78;
+    
+    dot.style.left = `${startRect.left}px`;
+    dot.style.top = `${dotY}px`;
+    
+    let hasPassedCenter = false;
+    
+    // Initialize or resume AudioContext during user interaction
+    if (!globalAudioContext) {
+        console.log('Creating new AudioContext during user interaction');
+        globalAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    
+    if (globalAudioContext.state === 'suspended') {
+        console.log('Resuming AudioContext during user interaction');
+        globalAudioContext.resume()
+            .then(() => console.log('AudioContext resumed successfully:', globalAudioContext.state))
+            .catch(err => console.log('AudioContext resume failed:', err));
+    }
+    
+    const startTime = performance.now();
+    function updatePosition(currentTime) {
+        if (!dot.isConnected) return;
+
+        const progress = (currentTime - startTime) / duration;
+        if (progress <= 1) {
+            const currentX = startRect.left + (endRect.right - startRect.left) * progress;
+            dot.style.left = `${currentX}px`;
+
+            // Check if this is the last letter and dot passes center
+            if (endElement === wordElement.lastElementChild && !hasPassedCenter) {
+                const dotCenterX = currentX + (dot.offsetWidth / 2);
+                const lastLetterRect = endElement.getBoundingClientRect();
+                const letterCenterX = lastLetterRect.left + (lastLetterRect.width / 2);
+                
+                const tolerance = 20;
+                if (Math.abs(dotCenterX - letterCenterX) <= tolerance) {
+                    hasPassedCenter = true;
+                    if (!isCustomWord && currentMode === 'repeat') {
+                        completionCount++;
+                        console.log('Completion count:', completionCount);
+                        if (completionCount === 3) {
+                            handleThreeCompletions();
+                        }
+                    }
+                }
+            }
+            requestAnimationFrame(updatePosition);
         }
+    }
+    
+    requestAnimationFrame(updatePosition);
 
-        window.addEventListener('load', initializeApp);
-        window.addEventListener('resize', positionImagesVertically);
-    </script>
-</body>
-</html>
+    const animation = dot.animate([
+        { left: `${startRect.left}px` },
+        { left: `${endRect.right}px` }
+    ], {
+        duration: duration,
+        easing: 'linear'
+    });
+
+    return new Promise(resolve => {
+        animation.onfinish = resolve;
+    });
+}
+
+			window.addEventListener('load', initializeApp);
+			window.addEventListener('resize', positionImagesVertically);
+			document.body.addEventListener('touchstart', resumeAudioContext);
+            document.body.addEventListener('mousedown', resumeAudioContext);
+			
+const helpButton = document.getElementById('helpButton');
+const infoBox = document.getElementById('infoBox');
+
+/*Touch the first letter and drag your fingers over the letters, tracking the moving black dot on top of the word. Say the sounds continuously just like I do and do it along with me. Do it thrice and help the baby animal reach Mama*/
+          
+const helpTexts = {
+    repeat: "I am going to touch the first letter and drag my fingers over the letters (hint for teacher: follow the moving dot just below the letters. Make sure to stress on no pauses between letter sounds). Watch and listen!, Try it with me if you want to! (Do it 3 times)",
+    test: "Now you do the same. Read the word by yourself. Sound out the letters continuously without pausing. (Press the reward button on top left corner if child reads correctly and help the baby animal reach mama!)",
+    custom: "Read the word by yourself. Sound out the letters from left to right continuously without pausing. Touch the first letter and drag your fingers as you sound out the letters!"
+};
+
+helpButton.addEventListener('click', handleHelpButtonClick);
+
+function handleHelpButtonClick() {
+    helpButton.classList.toggle('active');
+    if (helpButton.classList.contains('active')) {
+        if (customInputContainer.style.display === 'flex') {
+            infoBox.textContent = helpTexts.custom;
+        } else if (currentMode === 'repeat') {
+            infoBox.textContent = helpTexts.repeat;
+        } else if (currentMode === 'test') {
+            infoBox.textContent = helpTexts.test;
+        }
+        infoBox.style.display = 'block';
+    } else {
+        infoBox.style.display = 'none';
+    }
+}
+
+function updateInfoBoxDisplay() {
+    if (helpButton.classList.contains('active')) {
+        let currentText = '';
+        if (customInputContainer.style.display === 'flex') {
+            currentText = helpTexts.custom;
+        } else if (currentMode === 'repeat') {
+            currentText = helpTexts.repeat;
+        } else if (currentMode === 'test') {
+            currentText = helpTexts.test;
+        }
+        infoBox.textContent = currentText;
+        infoBox.style.display = 'block';
+    } else {
+        infoBox.style.display = 'none';
+    }
+}
+
+customButton.addEventListener('click', function() {
+    if (helpButton.classList.contains('active')) {
+        infoBox.textContent = helpTexts.custom;
+        infoBox.style.display = 'block';
+    }
+});
+
+tickButton.addEventListener('click', function() {
+    if (helpButton.classList.contains('active')) {
+        setTimeout(() => {
+            if (currentMode === 'repeat') {
+                infoBox.textContent = helpTexts.repeat;
+                infoBox.style.display = 'block';
+            } else if (currentMode === 'test') {
+                infoBox.textContent = helpTexts.test;
+                infoBox.style.display = 'block';
+            }
+        }, 100);
+    }
+});
+
+nextButton.addEventListener('click', function() {
+    if (helpButton.classList.contains('active')) {
+        updateInfoBoxDisplay();
+    }
+});
+
+previousButton.addEventListener('click', function() {
+    if (helpButton.classList.contains('active')) {
+        updateInfoBoxDisplay();
+    }
+});
+
+const originalSwitchMode = switchMode;
+switchMode = function(mode) {
+    originalSwitchMode(mode);
+    updateInfoBoxDisplay();
+};
+
+const originalHandleGo = handleGo;
+handleGo = function() {
+    originalHandleGo();
+    helpButton.style.display = 'flex';
+};
+
+		</script>
+	</body>
+	</html>
