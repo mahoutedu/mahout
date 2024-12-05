@@ -1281,46 +1281,56 @@ function handleCustom() {
     let isStarting = false;  // Add flag to track simulation start
     
     function startSimulation(event) {
-        event.preventDefault();
-        isStarting = true;  // Set flag when starting
-        console.log('Start simulation triggered');
-        console.log('Current state:', {
-            isAudioPlaying,
-            isAudioGuideActive
-        });
+    event.preventDefault();
+    isStarting = true;  // Set flag when starting
+    console.log('Start simulation triggered');
+    console.log('Current state:', {
+        isAudioPlaying,
+        isAudioGuideActive
+    });
 
-        if (isAudioPlaying || isAudioGuideActive) {
-            console.log('Audio playing or guide active, returning');
-            isStarting = false;
-            return;
-        }
-
-        // Initialize or resume AudioContext during letter touch
-        if (!globalAudioContext) {
-            console.log('Creating new AudioContext during letter touch');
-            globalAudioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        
-        console.log('Current AudioContext state:', globalAudioContext.state);
-        globalAudioContext.resume()
-            .then(() => {
-                console.log('AudioContext resumed successfully:', globalAudioContext.state);
-                return new Promise(resolve => setTimeout(resolve, 100));
-            })
-            .then(() => {
-                if (globalAudioContext.state === 'running') {
-                    console.log('AudioContext is running, proceeding with simulation');
-                    proceedWithSimulation();
-                } else {
-                    console.log('AudioContext not running:', globalAudioContext.state);
-                }
-                isStarting = false;  // Clear flag after attempt
-            })
-            .catch(err => {
-                console.log('Error in audio setup:', err);
-                isStarting = false;  // Clear flag on error
-            });
+    if (isAudioPlaying || isAudioGuideActive) {
+        console.log('Audio playing or guide active, returning');
+        isStarting = false;
+        return;
     }
+
+    // Create a silent audio context and try to play it to unlock audio
+    const unlockAudio = document.createElement('audio');
+    unlockAudio.setAttribute('src', 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA');
+
+    // Initialize or resume AudioContext during letter touch
+    if (!globalAudioContext) {
+        console.log('Creating new AudioContext during letter touch');
+        globalAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    
+    console.log('Current AudioContext state:', globalAudioContext.state);
+    
+    // Try to unlock audio with both approaches
+    Promise.all([
+        unlockAudio.play().then(() => unlockAudio.pause()).catch(console.log),
+        globalAudioContext.resume()
+    ])
+    .then(() => {
+        console.log('Audio unlock attempts complete');
+        console.log('AudioContext state after unlock:', globalAudioContext.state);
+        return new Promise(resolve => setTimeout(resolve, 100));
+    })
+    .then(() => {
+        if (globalAudioContext.state === 'running') {
+            console.log('AudioContext is running, proceeding with simulation');
+            proceedWithSimulation();
+        } else {
+            console.log('AudioContext still not running:', globalAudioContext.state);
+        }
+        isStarting = false;
+    })
+    .catch(err => {
+        console.log('Error in audio setup:', err);
+        isStarting = false;
+    });
+}
 
     function proceedWithSimulation() {
         console.log('Proceeding with simulation');
