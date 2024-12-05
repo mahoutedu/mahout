@@ -1281,7 +1281,16 @@ function handleCustom() {
     
     function startSimulation(event) {
         event.preventDefault();
-        if (isAudioPlaying || isAudioGuideActive) return;
+        console.log('Start simulation triggered');
+        console.log('Current state:', {
+            isAudioPlaying,
+            isAudioGuideActive
+        });
+
+        if (isAudioPlaying || isAudioGuideActive) {
+            console.log('Audio playing or guide active, returning');
+            return;
+        }
 
         // Initialize or resume AudioContext during letter touch
         if (!globalAudioContext) {
@@ -1298,12 +1307,15 @@ function handleCustom() {
                 })
                 .catch(err => console.log('AudioContext resume failed:', err));
         } else {
+            console.log('AudioContext state:', globalAudioContext.state);
             proceedWithSimulation();
         }
     }
 
     function proceedWithSimulation() {
+        console.log('Proceeding with simulation');
         if (currentWordAudio) {
+            console.log('Stopping current word audio');
             currentWordAudio.pause();
             currentWordAudio.currentTime = 0;
         }
@@ -1312,34 +1324,52 @@ function handleCustom() {
         isAudioPlaying = true;
         isSimulationComplete = false;
         
-        audio.play();
+        console.log('Attempting to play audio');
+        audio.play()
+            .then(() => {
+                console.log('Audio started playing successfully');
+            })
+            .catch(err => {
+                console.log('Audio play failed:', err);
+                isAudioPlaying = false;
+            });
+
         audio.onended = () => {
+            console.log('Audio ended');
             isAudioPlaying = false;
             isSimulationComplete = true;
             currentWordAudio = null;
         };
         
         simulateColorChange(letters, () => {
+            console.log('Color change simulation complete');
             isSimulationComplete = true;
         });
     }
 
     function stopSimulation() {
         if (!isSimulationComplete) {
+            console.log('Stopping simulation');
             if (currentWordAudio) {
+                console.log('Stopping current word audio');
                 currentWordAudio.pause();
                 currentWordAudio.currentTime = 0;
                 isAudioPlaying = false;
                 currentWordAudio = null;
             }
             if (colorChangeInterval) {
+                console.log('Clearing color change interval');
                 clearTimeout(colorChangeInterval);
             }
             const existingDot = document.querySelector('.moving-dot');
-            if (existingDot) existingDot.remove();
+            if (existingDot) {
+                console.log('Removing existing dot');
+                existingDot.remove();
+            }
             
             resetColors(letters);
             isSimulationComplete = false;
+            console.log('Simulation stopped and reset');
         }
     }
 
