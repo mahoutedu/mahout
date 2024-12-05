@@ -1280,37 +1280,42 @@ function handleCustom() {
     let isSimulationComplete = false;
     
     function startSimulation(event) {
-        event.preventDefault();
-        console.log('Start simulation triggered');
-        console.log('Current state:', {
-            isAudioPlaying,
-            isAudioGuideActive
-        });
+    event.preventDefault();
+    console.log('Start simulation triggered');
+    console.log('Current state:', {
+        isAudioPlaying,
+        isAudioGuideActive
+    });
 
-        if (isAudioPlaying || isAudioGuideActive) {
-            console.log('Audio playing or guide active, returning');
-            return;
-        }
-
-        // Initialize or resume AudioContext during letter touch
-        if (!globalAudioContext) {
-            console.log('Creating new AudioContext during letter touch');
-            globalAudioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        
-        if (globalAudioContext.state === 'suspended') {
-            console.log('Resuming AudioContext during letter touch');
-            globalAudioContext.resume()
-                .then(() => {
-                    console.log('AudioContext resumed successfully:', globalAudioContext.state);
-                    proceedWithSimulation();
-                })
-                .catch(err => console.log('AudioContext resume failed:', err));
-        } else {
-            console.log('AudioContext state:', globalAudioContext.state);
-            proceedWithSimulation();
-        }
+    if (isAudioPlaying || isAudioGuideActive) {
+        console.log('Audio playing or guide active, returning');
+        return;
     }
+
+    // Initialize or resume AudioContext during letter touch
+    if (!globalAudioContext) {
+        console.log('Creating new AudioContext during letter touch');
+        globalAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    
+    console.log('Current AudioContext state:', globalAudioContext.state);
+    globalAudioContext.resume()
+        .then(() => {
+            console.log('AudioContext resumed successfully:', globalAudioContext.state);
+            return new Promise(resolve => setTimeout(resolve, 100)); // Small delay
+        })
+        .then(() => {
+            if (globalAudioContext.state === 'running') {
+                console.log('AudioContext is running, proceeding with simulation');
+                proceedWithSimulation();
+            } else {
+                console.log('AudioContext not running:', globalAudioContext.state);
+            }
+        })
+        .catch(err => {
+            console.log('Error in audio setup:', err);
+        });
+}
 
     function proceedWithSimulation() {
         console.log('Proceeding with simulation');
