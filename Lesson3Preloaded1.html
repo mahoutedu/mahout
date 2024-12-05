@@ -1462,65 +1462,82 @@ function handleThreeCompletions() {
     const distance = Math.abs(midpoint - currentLeft);
     const duration = (distance / GIF_SPEED_PIXELS_PER_SECOND) * 1000;
 
-    console.log('Starting image movement');
-    moveImageTo(midpoint);
-
-    // Create audio elements
+    // Pre-load all audio elements during the user interaction
     const movementSound = new Audio(imageSets[currentImageSetIndex].movementSound);
-    movementSound.loop = true;
-    console.log('Attempting to play movement sound');
-    movementSound.play()
-        .then(() => console.log('Movement sound started'))
-        .catch(err => console.log('Movement sound failed:', err));
-    
-    setTimeout(() => {
-        console.log('Movement timeout triggered');
-        if (sequenceInProgress) {
-            console.log('Sequence still in progress');
-            
-            // Stop movement sound
-            movementSound.pause();
-            movementSound.currentTime = 0;
-            
-            // Play success sound
-            console.log('Attempting to play success sound');
-            const successSound = new Audio('https://static.wixstatic.com/mp3/d6e04b_6f20d2eb70234bd88522ae219259134e.mp3');
-            successSound.play()
-                .then(() => console.log('Success sound started'))
-                .catch(err => console.log('Success sound failed:', err));
-            
-            console.log('Switching to test mode');
-            switchMode('test');
-            
-            // Play test mode audio after delay
-            setTimeout(() => {
-                console.log('Test mode audio timeout triggered');
-                if (sequenceInProgress && !isAudioPlaying) {
-                    console.log('Attempting to play test mode audio');
-                    const testAudio = new Audio('https://static.wixstatic.com/mp3/d6e04b_dbe5d74b813641259acf1f37426661bc.mp3');
-                    testAudio.play()
-                        .then(() => {
-                            console.log('Test mode audio started');
-                            isAudioPlaying = true;
-                            testAudio.onended = () => {
-                                console.log('Test mode audio ended');
-                                isAudioPlaying = false;
-                            };
-                        })
-                        .catch(err => console.log('Test mode audio failed:', err));
-                } else {
-                    console.log('Skipping test mode audio - conditions not met:', {
-                        sequenceInProgress,
-                        isAudioPlaying
-                    });
-                }
-            }, 3000);
-        } else {
-            console.log('Sequence no longer in progress');
-        }
-    }, duration);
-}
+    const successSound = new Audio('https://static.wixstatic.com/mp3/d6e04b_6f20d2eb70234bd88522ae219259134e.mp3');
+    const testModeAudio = new Audio('https://static.wixstatic.com/mp3/d6e04b_dbe5d74b813641259acf1f37426661bc.mp3');
 
+    // Try to start them all immediately (during user interaction) and pause
+    Promise.all([
+        movementSound.play().then(() => movementSound.pause()),
+        successSound.play().then(() => successSound.pause()),
+        testModeAudio.play().then(() => testModeAudio.pause())
+    ]).then(() => {
+        console.log('Audio elements initialized');
+        startSequence();
+    }).catch(err => {
+        console.log('Audio initialization failed:', err);
+        startSequence();  // Continue anyway
+    });
+
+    function startSequence() {
+        console.log('Starting image movement');
+        moveImageTo(midpoint);
+
+        movementSound.currentTime = 0;
+        movementSound.loop = true;
+        movementSound.play()
+            .then(() => console.log('Movement sound started'))
+            .catch(err => console.log('Movement sound failed:', err));
+        
+        setTimeout(() => {
+            console.log('Movement timeout triggered');
+            if (sequenceInProgress) {
+                console.log('Sequence still in progress');
+                
+                // Stop movement sound
+                movementSound.pause();
+                movementSound.currentTime = 0;
+                
+                // Play success sound
+                console.log('Attempting to play success sound');
+                successSound.currentTime = 0;
+                successSound.play()
+                    .then(() => console.log('Success sound started'))
+                    .catch(err => console.log('Success sound failed:', err));
+                
+                console.log('Switching to test mode');
+                switchMode('test');
+                
+                // Play test mode audio after delay
+                setTimeout(() => {
+                    console.log('Test mode audio timeout triggered');
+                    if (sequenceInProgress && !isAudioPlaying) {
+                        console.log('Attempting to play test mode audio');
+                        testModeAudio.currentTime = 0;
+                        testModeAudio.play()
+                            .then(() => {
+                                console.log('Test mode audio started');
+                                isAudioPlaying = true;
+                                testModeAudio.onended = () => {
+                                    console.log('Test mode audio ended');
+                                    isAudioPlaying = false;
+                                };
+                            })
+                            .catch(err => console.log('Test mode audio failed:', err));
+                    } else {
+                        console.log('Skipping test mode audio - conditions not met:', {
+                            sequenceInProgress,
+                            isAudioPlaying
+                        });
+                    }
+                }, 3000);
+            } else {
+                console.log('Sequence no longer in progress');
+            }
+        }, duration);
+    }
+}
 
 	function resetColors(letters) {
 		letters.forEach(letter => letter.style.color = 'black');
