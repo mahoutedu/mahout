@@ -1446,125 +1446,110 @@ function handleThreeCompletions() {
     console.log('Starting handleThreeCompletions');
     completionCount = 0;
     
-    // Force resume AudioContext before proceeding
-    if (!globalAudioContext) {
-        console.log('Creating new AudioContext in handleThreeCompletions');
-        globalAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const imageContainer = document.getElementById('imageContainer');
+    const staticImage2Container = document.getElementById('staticImage2Container');
+    const currentLeft = parseFloat(imageContainer.style.left) || 0;
+    
+    const staticImage2Left = staticImage2Container.getBoundingClientRect().left;
+    const movingImageWidth = imageContainer.offsetWidth;
+    const maxPosition = staticImage2Left - movingImageWidth;
+    
+    const midpoint = Math.min(
+        currentLeft + ((staticImage2Left - currentLeft) / 2),
+        maxPosition
+    );
+    
+    const distance = Math.abs(midpoint - currentLeft);
+    const duration = (distance / GIF_SPEED_PIXELS_PER_SECOND) * 1000;
+
+    // Try to resume AudioContext before proceeding
+    if (globalAudioContext && globalAudioContext.state === 'suspended') {
+        console.log('Attempting to resume AudioContext');
+        globalAudioContext.resume()
+            .then(() => console.log('AudioContext resumed:', globalAudioContext.state))
+            .catch(err => console.log('AudioContext resume failed:', err));
     }
 
-    console.log('Forcing AudioContext resume before proceeding');
-    globalAudioContext.resume()
-        .then(() => {
-            console.log('AudioContext state after force resume:', globalAudioContext.state);
-            if (globalAudioContext.state === 'running') {
-                console.log('AudioContext successfully running, proceeding with sequence');
-                proceedWithSequence();
-            } else {
-                console.log('AudioContext still suspended after resume attempt');
+    const loadAndPlayAudio = async (url, options = {}) => {
+        try {
+            console.log('Fetching audio from:', url);
+            const response = await fetch(url);
+            console.log('Audio fetch complete, decoding...');
+            const arrayBuffer = await response.arrayBuffer();
+            console.log('Creating audio buffer...');
+            const audioBuffer = await globalAudioContext.decodeAudioData(arrayBuffer);
+            console.log('Audio buffer created, setting up source...');
+            const source = globalAudioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(globalAudioContext.destination);
+            if (options.loop) {
+                source.loop = true;
+                console.log('Loop enabled for audio');
             }
-        })
-        .catch(err => {
-            console.log('Error resuming AudioContext:', err);
-        });
-
-    function proceedWithSequence() {
-        const imageContainer = document.getElementById('imageContainer');
-        const staticImage2Container = document.getElementById('staticImage2Container');
-        const currentLeft = parseFloat(imageContainer.style.left) || 0;
-        
-        const staticImage2Left = staticImage2Container.getBoundingClientRect().left;
-        const movingImageWidth = imageContainer.offsetWidth;
-        const maxPosition = staticImage2Left - movingImageWidth;
-        
-        const midpoint = Math.min(
-            currentLeft + ((staticImage2Left - currentLeft) / 2),
-            maxPosition
-        );
-        
-        const distance = Math.abs(midpoint - currentLeft);
-        const duration = (distance / GIF_SPEED_PIXELS_PER_SECOND) * 1000;
-
-        const loadAndPlayAudio = async (url, options = {}) => {
-            try {
-                console.log('Fetching audio from:', url);
-                const response = await fetch(url);
-                console.log('Audio fetch complete, decoding...');
-                const arrayBuffer = await response.arrayBuffer();
-                console.log('Creating audio buffer...');
-                const audioBuffer = await globalAudioContext.decodeAudioData(arrayBuffer);
-                console.log('Audio buffer created, setting up source...');
-                const source = globalAudioContext.createBufferSource();
-                source.buffer = audioBuffer;
-                source.connect(globalAudioContext.destination);
-                if (options.loop) {
-                    source.loop = true;
-                    console.log('Loop enabled for audio');
-                }
-                console.log('Starting audio playback');
-                source.start(0);
-                return source;
-            } catch (err) {
-                console.log('Audio playback failed:', err);
-                console.log('Error details:', {
-                    name: err.name,
-                    message: err.message,
-                    stack: err.stack
-                });
-                return null;
-            }
-        };
-
-        console.log('Starting image movement');
-        moveImageTo(midpoint);
-
-        console.log('Attempting to play movement sound');
-        let movementSource = null;
-        loadAndPlayAudio(imageSets[currentImageSetIndex].movementSound, { loop: true })
-            .then(source => {
-                movementSource = source;
-                console.log('Movement sound source created:', !!source);
+            console.log('Starting audio playback');
+            source.start(0);
+            return source;
+        } catch (err) {
+            console.log('Audio playback failed:', err);
+            console.log('Error details:', {
+                name: err.name,
+                message: err.message,
+                stack: err.stack
             });
-        
-        setTimeout(async () => {
-            console.log('Movement timeout triggered');
-            if (sequenceInProgress) {
-                console.log('Sequence still in progress');
-                if (movementSource) {
-                    console.log('Stopping movement sound');
-                    movementSource.stop();
-                }
-                
-                console.log('Attempting to play success sound');
-                await loadAndPlayAudio('https://static.wixstatic.com/mp3/d6e04b_6f20d2eb70234bd88522ae219259134e.mp3');
-                
-                console.log('Switching to test mode');
-                switchMode('test');
-                
-                setTimeout(async () => {
-                    console.log('Test mode audio timeout triggered');
-                    if (sequenceInProgress && !isAudioPlaying) {
-                        console.log('Attempting to play test mode audio');
-                        const source = await loadAndPlayAudio('https://static.wixstatic.com/mp3/d6e04b_dbe5d74b813641259acf1f37426661bc.mp3');
-                        if (source) {
-                            console.log('Test mode audio source created successfully');
-                            isAudioPlaying = true;
-                            source.onended = () => {
-                                console.log('Test mode audio ended');
-                                isAudioPlaying = false;
-                            };
-                        }
-                    } else {
-                        console.log('Skipping test mode audio - conditions not met:', {
-                            sequenceInProgress,
-                            isAudioPlaying
-                        });
-                    }
-                }, 3000);
-            } else {
-                console.log('Sequence no longer in progress');
+            return null;
+        }
+    };
+
+    console.log('Starting image movement');
+    moveImageTo(midpoint);
+
+    console.log('Attempting to play movement sound');
+    let movementSource = null;
+    loadAndPlayAudio(imageSets[currentImageSetIndex].movementSound, { loop: true })
+        .then(source => {
+            movementSource = source;
+            console.log('Movement sound source created:', !!source);
+        });
+    
+    setTimeout(async () => {
+        console.log('Movement timeout triggered');
+        if (sequenceInProgress) {
+            console.log('Sequence still in progress');
+            if (movementSource) {
+                console.log('Stopping movement sound');
+                movementSource.stop();
             }
-        }, duration);
-    }
+            
+            console.log('Attempting to play success sound');
+            await loadAndPlayAudio('https://static.wixstatic.com/mp3/d6e04b_6f20d2eb70234bd88522ae219259134e.mp3');
+            
+            console.log('Switching to test mode');
+            switchMode('test');
+            
+            setTimeout(async () => {
+                console.log('Test mode audio timeout triggered');
+                if (sequenceInProgress && !isAudioPlaying) {
+                    console.log('Attempting to play test mode audio');
+                    const source = await loadAndPlayAudio('https://static.wixstatic.com/mp3/d6e04b_dbe5d74b813641259acf1f37426661bc.mp3');
+                    if (source) {
+                        console.log('Test mode audio source created successfully');
+                        isAudioPlaying = true;
+                        source.onended = () => {
+                            console.log('Test mode audio ended');
+                            isAudioPlaying = false;
+                        };
+                    }
+                } else {
+                    console.log('Skipping test mode audio - conditions not met:', {
+                        sequenceInProgress,
+                        isAudioPlaying
+                    });
+                }
+            }, 3000);
+        } else {
+            console.log('Sequence no longer in progress');
+        }
+    }, duration);
 }
 
 
