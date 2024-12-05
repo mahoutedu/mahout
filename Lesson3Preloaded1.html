@@ -1295,7 +1295,21 @@ function handleCustom() {
             return;
         }
 
-        // Try direct audio playback
+        // Initialize AudioContext for later use even though we're not using it for this audio
+        if (!globalAudioContext) {
+            console.log('Creating new AudioContext during letter touch');
+            globalAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        
+        // Resume AudioContext for later use
+        if (globalAudioContext.state === 'suspended') {
+            console.log('Resuming AudioContext during letter touch');
+            globalAudioContext.resume()
+                .then(() => console.log('AudioContext resumed:', globalAudioContext.state))
+                .catch(err => console.log('AudioContext resume failed:', err));
+        }
+
+        // Use direct audio playback for the word audio
         console.log('Attempting direct audio playback');
         if (currentWordAudio) {
             currentWordAudio.pause();
