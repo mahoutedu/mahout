@@ -322,59 +322,6 @@
 }
 			
 		</style>
-<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Document ready');
-        
-        try {
-            eruda.init({
-                useShadowDom: false,
-                transparent: true,
-                theme: 'Dark',
-                autoScale: true
-            });
-            
-            console.log('Eruda initialized');
-
-            setTimeout(() => {
-                const entryBtn = document.querySelector('.eruda-entry-btn');
-                if (entryBtn) {
-                    console.log('Found entry button, applying styles');
-                    Object.assign(entryBtn.style, {
-                        position: 'fixed !important',
-                        top: '5px !important',
-                        left: '5px !important',
-                        right: 'auto !important',
-                        bottom: 'auto !important',
-                        zIndex: '2147483647',
-                        transform: 'none !important',
-                        margin: '0 !important'
-                    });
-
-                    // Also add a style tag for extra specificity
-                    const styleSheet = document.createElement('style');
-                    styleSheet.textContent = `
-                        .eruda-entry-btn {
-                            position: fixed !important;
-                            top: 5px !important;
-                            left: 5px !important;
-                            right: auto !important;
-                            bottom: auto !important;
-                            transform: none !important;
-                            margin: 0 !important;
-                        }
-                    `;
-                    document.head.appendChild(styleSheet);
-                    console.log('Styles applied to entry button');
-                }
-            }, 1000);
-
-        } catch (error) {
-            console.log('Error:', error);
-        }
-    });
-</script>
 	</head>
 	<body>
 		<div class="content">
@@ -669,14 +616,32 @@
 			];
 			
 			function resetSequence() {
+    console.log('Resetting sequence');
     sequenceInProgress = false;
     completionCount = 0;
+    isImageMovementComplete = false; // Reset this flag when resetting sequence
+    
+    // Clear timeouts
     if (audioGuideTimeout) {
         clearTimeout(audioGuideTimeout);
     }
     if (currentMovementTimeout) {
         clearTimeout(currentMovementTimeout);
     }
+    
+    // Stop movement sound with additional checks and error handling
+    if (currentMovementSource) {
+        try {
+            console.log('Stopping current movement sound');
+            currentMovementSource.stop();
+            currentMovementSource.disconnect();
+        } catch (err) {
+            console.log('Error stopping movement sound:', err);
+        } finally {
+            currentMovementSource = null;
+        }
+    }
+    
     stopCurrentMode();
     resetImagePosition();
 }
@@ -1161,6 +1126,7 @@ function handleCustom() {
     if (isCustomWord) return;
 
     stopCurrentMode();
+    isImageMovementComplete = false; // Reset this flag when switching modes
 
     currentMode = mode;
     repeatModeCircle.classList.remove('active');
@@ -1278,31 +1244,31 @@ function handleCustom() {
 
     const firstLetter = letters[0];
     let isSimulationComplete = false;
-    let isStarting = false;
     
     function startSimulation(event) {
         event.preventDefault();
-        isStarting = true;
-        console.log('Start simulation triggered');
-        console.log('Current state:', {
-            isAudioPlaying,
-            isAudioGuideActive
-        });
+        if (isAudioPlaying || isAudioGuideActive) return;
 
-        if (isAudioPlaying || isAudioGuideActive) {
-            console.log('Audio playing or guide active, returning');
-            isStarting = false;
-            return;
-        }
-
-        // Initialize AudioContext for later use
+        // Initialize or resume AudioContext during letter touch
         if (!globalAudioContext) {
             console.log('Creating new AudioContext during letter touch');
             globalAudioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
+        
+        if (globalAudioContext.state === 'suspended') {
+            console.log('Resuming AudioContext during letter touch');
+            globalAudioContext.resume()
+                .then(() => {
+                    console.log('AudioContext resumed successfully:', globalAudioContext.state);
+                    proceedWithSimulation();
+                })
+                .catch(err => console.log('AudioContext resume failed:', err));
+        } else {
+            proceedWithSimulation();
+        }
+    }
 
-        // Try direct audio playback
-        console.log('Attempting direct audio playback');
+    function proceedWithSimulation() {
         if (currentWordAudio) {
             currentWordAudio.pause();
             currentWordAudio.currentTime = 0;
@@ -1312,57 +1278,34 @@ function handleCustom() {
         isAudioPlaying = true;
         isSimulationComplete = false;
         
-        audio.play()
-            .then(() => {
-                console.log('Audio started successfully');
-                simulateColorChange(letters, () => {
-                    console.log('Color change simulation complete');
-                    isSimulationComplete = true;
-                });
-            })
-            .catch(err => {
-                console.log('Audio play failed:', err);
-                isAudioPlaying = false;
-                isStarting = false;
-            });
-
+        audio.play();
         audio.onended = () => {
-            console.log('Audio ended');
             isAudioPlaying = false;
             isSimulationComplete = true;
             currentWordAudio = null;
-            isStarting = false;
         };
+        
+        simulateColorChange(letters, () => {
+            isSimulationComplete = true;
+        });
     }
 
     function stopSimulation() {
-        if (isStarting) {
-            console.log('Ignoring stop while starting simulation');
-            return;
-        }
-
         if (!isSimulationComplete) {
-            console.log('Stopping simulation');
             if (currentWordAudio) {
-                console.log('Stopping current word audio');
                 currentWordAudio.pause();
                 currentWordAudio.currentTime = 0;
                 isAudioPlaying = false;
                 currentWordAudio = null;
             }
             if (colorChangeInterval) {
-                console.log('Clearing color change interval');
                 clearTimeout(colorChangeInterval);
             }
             const existingDot = document.querySelector('.moving-dot');
-            if (existingDot) {
-                console.log('Removing existing dot');
-                existingDot.remove();
-            }
+            if (existingDot) existingDot.remove();
             
             resetColors(letters);
             isSimulationComplete = false;
-            console.log('Simulation stopped and reset');
         }
     }
 
@@ -1458,85 +1401,72 @@ function handleThreeCompletions() {
         currentLeft + ((staticImage2Left - currentLeft) / 2),
         maxPosition
     );
-    
-    const distance = Math.abs(midpoint - currentLeft);
-    const duration = (distance / GIF_SPEED_PIXELS_PER_SECOND) * 1000;
 
-    // Pre-load all audio elements during the user interaction
-    const movementSound = new Audio(imageSets[currentImageSetIndex].movementSound);
-    const successSound = new Audio('https://static.wixstatic.com/mp3/d6e04b_6f20d2eb70234bd88522ae219259134e.mp3');
-    const testModeAudio = new Audio('https://static.wixstatic.com/mp3/d6e04b_dbe5d74b813641259acf1f37426661bc.mp3');
-
-    // Try to start them all immediately (during user interaction) and pause
-    Promise.all([
-        movementSound.play().then(() => movementSound.pause()),
-        successSound.play().then(() => successSound.pause()),
-        testModeAudio.play().then(() => testModeAudio.pause())
-    ]).then(() => {
-        console.log('Audio elements initialized');
-        startSequence();
-    }).catch(err => {
-        console.log('Audio initialization failed:', err);
-        startSequence();  // Continue anyway
-    });
-
-    function startSequence() {
-        console.log('Starting image movement');
-        moveImageTo(midpoint);
-
-        movementSound.currentTime = 0;
-        movementSound.loop = true;
-        movementSound.play()
-            .then(() => console.log('Movement sound started'))
-            .catch(err => console.log('Movement sound failed:', err));
-        
-        setTimeout(() => {
-            console.log('Movement timeout triggered');
-            if (sequenceInProgress) {
-                console.log('Sequence still in progress');
-                
-                // Stop movement sound
-                movementSound.pause();
-                movementSound.currentTime = 0;
-                
-                // Play success sound
-                console.log('Attempting to play success sound');
-                successSound.currentTime = 0;
-                successSound.play()
-                    .then(() => console.log('Success sound started'))
-                    .catch(err => console.log('Success sound failed:', err));
-                
-                console.log('Switching to test mode');
-                switchMode('test');
-                
-                // Play test mode audio after delay
-                setTimeout(() => {
-                    console.log('Test mode audio timeout triggered');
-                    if (sequenceInProgress && !isAudioPlaying) {
-                        console.log('Attempting to play test mode audio');
-                        testModeAudio.currentTime = 0;
-                        testModeAudio.play()
-                            .then(() => {
-                                console.log('Test mode audio started');
-                                isAudioPlaying = true;
-                                testModeAudio.onended = () => {
-                                    console.log('Test mode audio ended');
-                                    isAudioPlaying = false;
-                                };
-                            })
-                            .catch(err => console.log('Test mode audio failed:', err));
-                    } else {
-                        console.log('Skipping test mode audio - conditions not met:', {
-                            sequenceInProgress,
-                            isAudioPlaying
-                        });
-                    }
-                }, 3000);
-            } else {
-                console.log('Sequence no longer in progress');
-            }
-        }, duration);
+    console.log('Checking AudioContext state:', globalAudioContext?.state);
+    if (!globalAudioContext || globalAudioContext.state === 'suspended') {
+        console.log('AudioContext not ready');
+        return;
     }
+
+    console.log('Starting image movement');
+    // Move the image - let moveImageTo handle the audio
+    moveImageTo(midpoint);
+    
+    // Handle the sequence after movement
+    const duration = (Math.abs(midpoint - currentLeft) / GIF_SPEED_PIXELS_PER_SECOND) * 1000;
+    
+    setTimeout(async () => {
+        console.log('Movement timeout triggered');
+        if (sequenceInProgress) {
+            console.log('Sequence still in progress');
+            
+            // Stop movement sound if it exists
+            if (currentMovementSource) {
+                try {
+                    console.log('Stopping movement sound');
+                    currentMovementSource.stop();
+                    currentMovementSource.disconnect();
+                    currentMovementSource = null;
+                } catch (err) {
+                    console.log('Error stopping movement sound:', err);
+                }
+            }
+            
+            console.log('Attempting to play success sound');
+            const loadAndPlayAudio = async (url) => {
+                try {
+                    console.log('Fetching audio from:', url);
+                    const response = await fetch(url);
+                    console.log('Audio fetch complete, decoding...');
+                    const arrayBuffer = await response.arrayBuffer();
+                    console.log('Creating audio buffer...');
+                    const audioBuffer = await globalAudioContext.decodeAudioData(arrayBuffer);
+                    console.log('Audio buffer created, setting up source...');
+                    const source = globalAudioContext.createBufferSource();
+                    source.buffer = audioBuffer;
+                    source.connect(globalAudioContext.destination);
+                    console.log('Starting audio playback');
+                    source.start(0);
+                    return source;
+                } catch (err) {
+                    console.log('Audio playback failed:', err);
+                    return null;
+                }
+            };
+            
+            await loadAndPlayAudio('https://static.wixstatic.com/mp3/d6e04b_6f20d2eb70234bd88522ae219259134e.mp3');
+            
+            console.log('Switching to test mode');
+            switchMode('test');
+            
+            setTimeout(async () => {
+                if (sequenceInProgress && !isAudioPlaying) {
+                    console.log('Attempting to play test mode audio');
+                    await loadAndPlayAudio('https://static.wixstatic.com/mp3/d6e04b_dbe5d74b813641259acf1f37426661bc.mp3');
+                }
+            }, 1200);
+        }
+    }, duration);
 }
 
 	function resetColors(letters) {
@@ -1620,9 +1550,8 @@ function stopCurrentMode() {
 			}
 
 			function moveImageToRightEdge() {
-    if (isImageMoving) return;
+    if (isImageMoving || isImageMovementComplete) return; // Add check for isImageMovementComplete
 
-    // Initialize or resume AudioContext during button click
     if (!globalAudioContext) {
         console.log('Creating new AudioContext during button click');
         globalAudioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -1634,7 +1563,7 @@ function stopCurrentMode() {
         const screenWidth = window.innerWidth;
         const staticImage2Width = staticImage2Container.offsetWidth;
         const targetPosition = screenWidth - staticImage2Width - imageContainer.offsetWidth;
-        moveImageTo(targetPosition, true); // Pass true to indicate manual movement
+        moveImageTo(targetPosition, true);
     }).catch(err => console.log('AudioContext resume failed:', err));
 }
 
@@ -1646,10 +1575,16 @@ function stopCurrentMode() {
         clearTimeout(currentMovementTimeout);
     }
 
+    // Clear any existing movement sound first
     if (currentMovementSource) {
-        console.log('Stopping previous movement sound');
-        currentMovementSource.stop();
-        currentMovementSource = null;
+        try {
+            console.log('Stopping previous movement sound');
+            currentMovementSource.stop();
+            currentMovementSource.disconnect();
+            currentMovementSource = null;
+        } catch (err) {
+            console.log('Error stopping previous movement sound:', err);
+        }
     }
 
     isImageMoving = true;
@@ -1666,7 +1601,6 @@ function stopCurrentMode() {
     
     isImageMovementComplete = false;
 
-    // Define loadAndPlayAudio outside so it's available throughout the function
     const loadAndPlayAudio = async (url, options = {}) => {
         try {
             console.log('Fetching audio from:', url);
@@ -1697,17 +1631,28 @@ function stopCurrentMode() {
         }
     };
 
-    // Only proceed with audio if we have a valid AudioContext
     if (globalAudioContext && globalAudioContext.state === 'running') {
         console.log('Starting audio sequence');
         
-        // Play movement sound
-        console.log('Attempting to play movement sound');
-        loadAndPlayAudio(imageSets[currentImageSetIndex].movementSound, { loop: true })
-            .then(source => {
-                currentMovementSource = source;
-                console.log('Movement sound source created:', !!source);
-            });
+        // Only create new movement sound if none exists
+        if (!currentMovementSource && !isImageMovementComplete) {
+            console.log('Attempting to play movement sound');
+            loadAndPlayAudio(imageSets[currentImageSetIndex].movementSound, { loop: true })
+                .then(source => {
+                    if (source && sequenceInProgress) {  // Additional check
+                        currentMovementSource = source;
+                        console.log('Movement sound source created:', !!source);
+                    } else if (source) {
+                        // Clean up if sequence was interrupted
+                        try {
+                            source.stop();
+                            source.disconnect();
+                        } catch (err) {
+                            console.log('Error cleaning up interrupted sound:', err);
+                        }
+                    }
+                });
+        }
     } else {
         console.log('AudioContext not ready:', globalAudioContext?.state);
     }
@@ -1720,21 +1665,44 @@ function stopCurrentMode() {
             isImageMoving = false;
             
             if (currentMovementSource) {
-                console.log('Stopping movement sound');
-                currentMovementSource.stop();
-                currentMovementSource = null;
+                try {
+                    console.log('Stopping movement sound');
+                    currentMovementSource.stop();
+                    currentMovementSource.disconnect();
+                    currentMovementSource = null;
+                } catch (err) {
+                    console.log('Error stopping movement sound:', err);
+                }
             }
             
             if (globalAudioContext && globalAudioContext.state === 'running') {
-                // Play success sound
                 console.log('Attempting to play success sound');
                 loadAndPlayAudio('https://static.wixstatic.com/mp3/d6e04b_6f20d2eb70234bd88522ae219259134e.mp3')
                     .then(source => {
                         if (source) {
                             console.log('Success sound playing');
+                            source.onended = () => {
+                                try {
+                                    source.disconnect();
+                                } catch (err) {
+                                    console.log('Error disconnecting success sound:', err);
+                                }
+                            };
                         }
                     });
             }
+        } else {
+            // Clean up if sequence was interrupted
+            if (currentMovementSource) {
+                try {
+                    currentMovementSource.stop();
+                    currentMovementSource.disconnect();
+                    currentMovementSource = null;
+                } catch (err) {
+                    console.log('Error stopping movement sound:', err);
+                }
+            }
+            isImageMoving = false;
         }
         currentMovementTimeout = null;
     }, duration);
